@@ -1,0 +1,428 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tidy.AdventOfCode</name>
+    </assembly>
+    <members>
+        <member name="T:Tidy.AdventOfCode.CachingApiHandler">
+            <inheritdoc/>
+        </member>
+        <member name="P:Tidy.AdventOfCode.CachingApiHandler.Client">
+            <summary>The client instance used for communicating with the https://adventofcode.com/ website.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.CachingApiHandler.ApiCacheManager">
+            <summary>The API cache manager. Used to look up and store the inputs and results.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.CachingApiHandler.ParameterValidator">
+            <summary>The parameter validator. Used to validate year, day and part values.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.CachingApiHandler.HtmlContentExtractor">
+            <summary>The HTML content extractor. Used to extract the &lt;main&gt; tag's content from the full HTML from HTTP body.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.CachingApiHandler.#ctor(Tidy.AdventOfCode.IApiCookieAccessor,Tidy.AdventOfCode.IApiCacheManager,Tidy.AdventOfCode.IParameterValidator,Tidy.AdventOfCode.IHtmlContentExtractor)">
+            <summary>Creates a caching API handler object.</summary>
+            <param name="apiCookieAccessor">The cookie accessor object. Used to put the relevant request header to the <see cref="T:System.Net.Http.HttpClient"/> when constructing.</param>
+            <param name="apiCacheManager">The API cache manager. Used to look up and store the inputs and results.</param>
+            <param name="parameterValidator">The parameter validator. Used to validate year, day and part values.</param>
+            <param name="htmlContentExtractor">The HTML content extractor. Used to extract the &lt;main&gt; tag's content from the full HTML from HTTP body.</param>
+        </member>
+        <member name="M:Tidy.AdventOfCode.CachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.CachingApiHandler.PostAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1">
+            <summary>The base convenience class to inherit from when creating solutions for Advent of Code riddles.<br/>
+            Note that this class contains additional convenience subclasses for easily parsing the input value (e.g. <see cref="T:Tidy.AdventOfCode.Day`1.NewLineSplitParsed"/> to use default <typeparamref name="T"/> type conversion from strings and newline-splitting along the '\n' character).<br/>
+            You can and should create additional abstractions based on your needs from this class.</summary>
+            <typeparam name="T">The type of the data used when processing the input, looking for the correct solution. If using the default <see cref="T:Tidy.AdventOfCode.Runner"/> and service configuration, then the input is provided by the <see cref="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)"/> method to the <see cref="P:Tidy.AdventOfCode.Day`1.Input"/> property to be used in one of the executor methods.</typeparam>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1.Raw">
+            <summary>Uses no parsing of the input value. Simply provides the input string unmodified. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.Raw.ParseInput(System.String)">
+            <summary>Returns the input string.</summary>
+            <param name="rawInput">The input to return.</param>
+            <returns>The <paramref name="rawInput"/> unmodified.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1.NewLineSplitParsed">
+            <summary>Splits the input string along newlines ('\n') and uses <see cref="M:System.ComponentModel.TypeDescriptor.GetConverter(System.Object)"/> for <typeparamref name="T"/> to convert using the <see cref="M:System.ComponentModel.TypeConverter.ConvertFromString(System.String)"/> method. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.NewLineSplitParsed.ParseInput(System.String)">
+            <summary>
+            Parses the provided <paramref name="rawInput"/> by splitting along the newline ('\n') character, and projecting each line to a <typeparamref name="T"/> type by using the default <see cref="T:System.ComponentModel.TypeConverter"/>.
+            </summary>
+            <param name="rawInput">The raw input value.</param>
+            <returns>The parsed <typeparamref name="T"/> values as a generic array.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1.ForOne`1">
+            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+            <typeparam name="TParser">The <see cref="T:Tidy.AdventOfCode.ISingleParser`1"/> type to be used for constructing the <typeparamref name="T"/> instance.</typeparam>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ForOne`1.ParseInput(System.String)">
+            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance and calling <see cref="M:Tidy.AdventOfCode.ISingleParser`1.ParseOne(System.String)"/>.</summary>
+            <param name="rawInput">The raw input value.</param>
+            <returns>The parsed <typeparamref name="T"/> instance.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1.ForMany`1">
+            <summary>Creates multiple instances of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+            <typeparam name="TParser">The <see cref="T:Tidy.AdventOfCode.IMultipleParser`1"/> type to be used for constructing <typeparamref name="T"/> instances.</typeparam>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ForMany`1.ParseInput(System.String)">
+            <summary>Creates an array of <typeparamref name="T"/> instances for processing, by constructing an <typeparamref name="TParser"/> instance and calling <see cref="M:Tidy.AdventOfCode.IMultipleParser`1.ParseMany(System.String)"/>.</summary>
+            <param name="rawInput">The raw input value.</param>
+            <returns>The parsed <typeparamref name="T"/> array.</returns>
+        </member>
+        <member name="P:Tidy.AdventOfCode.Day`1.Input">
+            <summary>The input value. Generally provided by a <see cref="T:Tidy.AdventOfCode.Runner"/> by calling this instance's <see cref="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)"/> method.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ExecuteAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes the given part. Calls either <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1Async(System.Threading.CancellationToken)"/> or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart2Async(System.Threading.CancellationToken)"/> and returns the result (or faults).
+            </summary>
+            <param name="part">The part to be used. Should be either 1 or 2.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The result from the part-specific execution method (<see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1Async(System.Threading.CancellationToken)"/> or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart2Async(System.Threading.CancellationToken)"/>);</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)">
+            <inheritdoc cref="M:Tidy.AdventOfCode.IDay.ParseInput(System.String)"/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ExecutePart1">
+            <summary>Executes part 1 of the solution. By default, <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1Async(System.Threading.CancellationToken)"/> calls this method, and this throws a <see cref="T:System.NotImplementedException"/> and either this or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1Async(System.Threading.CancellationToken)"/> should be overridden.</summary>
+            <returns>The answer to part 1 of the riddle, as computed.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ExecutePart2">
+            <summary>Executes part 2 of the solution. By default, <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart2Async(System.Threading.CancellationToken)"/> calls this method, and this throws a <see cref="T:System.NotImplementedException"/> and either this or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart2Async(System.Threading.CancellationToken)"/> should be overridden.</summary>
+            <returns>The answer to part 2 of the riddle, as computed.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ExecutePart1Async(System.Threading.CancellationToken)">
+            <summary>Asynchronously executes part 1 of the solution. By default, this method calls <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1"/>, which throws a <see cref="T:System.NotImplementedException"/> and either this or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1"/> should be overridden.</summary>
+            <returns>The answer to part 1 of the riddle, as computed asynchronously.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.ExecutePart2Async(System.Threading.CancellationToken)">
+            <summary>Asynchronously executes part 2 of the solution. By default, this method calls <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart2"/>, which throws a <see cref="T:System.NotImplementedException"/> and either this or <see cref="M:Tidy.AdventOfCode.Day`1.ExecutePart1"/> should be overridden.</summary>
+            <returns>The answer to part 1 of the riddle, as computed asynchronously.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Tidy.AdventOfCode.DayAttribute">
+            <summary>Used to annotate a non-conventionally named <see cref="T:Tidy.AdventOfCode.Day`1"/> object with the corresponding year and day values, or ignore a <see cref="T:Tidy.AdventOfCode.Day`1"/> subclass from being resolved by an <see cref="T:Tidy.AdventOfCode.IDayResolver"/>. By convention, <see cref="T:Tidy.AdventOfCode.Day`1"/> objects should be named Day# or Day##, where # and ## represents the day number, and be placed in a namespace which has a last segment of Year####, where #### corresponds to the relevant year.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DayAttribute.#ctor(System.Int32,System.Int32)">
+            <summary>Annotate a <see cref="T:Tidy.AdventOfCode.Day`1"/> type with the given <paramref name="year"/> and <paramref name="dayNumber"/> values when not conventionally named.</summary>
+            <param name="year">The relevant year for the <see cref="T:Tidy.AdventOfCode.Day`1"/> type.</param>
+            <param name="dayNumber">The relevant day for the <see cref="T:Tidy.AdventOfCode.Day`1"/> type.</param>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayAttribute.Year">
+            <summary>The year number that the <see cref="T:Tidy.AdventOfCode.Day`1"/> belongs to.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayAttribute.DayNumber">
+            <summary>The day number that the <see cref="T:Tidy.AdventOfCode.Day`1"/> belongs to.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayAttribute.Ignore">
+            <summary>Indicates whether to ignore the <see cref="T:Tidy.AdventOfCode.Day`1"/> type from being included in automatic resolution from an <see cref="T:Tidy.AdventOfCode.IDayResolver"/>.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.DayResolver">
+            <summary>Responsible for creating <see cref="T:Tidy.AdventOfCode.IDay"/> objects. This resolver uses the provided <see cref="T:System.IServiceProvider"/> for constructing the <see cref="T:Tidy.AdventOfCode.IDay"/> instances by providing services to the <see cref="T:Tidy.AdventOfCode.IDay"/>'s (single, public) constructor.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayResolver.DayConstructors">
+            <summary>The constructor instances stored for each year-day pair.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DayResolver.#ctor(Tidy.AdventOfCode.IParameterValidator,System.IServiceProvider,System.Reflection.Assembly[])">
+            <summary>Create a resolver object for constructing <see cref="T:Tidy.AdventOfCode.Day`1"/> instances using dependency injection.</summary>
+            <param name="parameterValidator">The validator used to validate year and day values.</param>
+            <param name="serviceProvider">The service provider used to provide required services for the <see cref="T:Tidy.AdventOfCode.IDay"/> constructors.</param>
+            <param name="additionalAssemblies">The assemblies to be scanned (in addition to the entry assembly) for <see cref="T:Tidy.AdventOfCode.IDay"/> implementations.</param>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayResolver.ParameterValidator">
+            <summary>The validator used to validate year and day values.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DayResolver.ServiceProvider">
+            <summary>The service provider used to provide required services for the <see cref="T:Tidy.AdventOfCode.Day`1"/> constructors.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DayResolver.CreateDay(System.Int32,System.Int32)">
+            <summary>Create a <see cref="T:Tidy.AdventOfCode.IDay"/> implementation for a given <paramref name="year"/>-<paramref name="day"/> pair by using the registered implementation's single public constructor for dependency injection from the <see cref="P:Tidy.AdventOfCode.DayResolver.ServiceProvider"/> instance.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.DirectoryCacheManager">
+            <summary>A cache manager object that stores the cookie, the riddle inputs and responses as file entries in the provided directory.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.#ctor(Tidy.AdventOfCode.IDirectoryCacheManagerPathProvider,Tidy.AdventOfCode.IParameterValidator)">
+            <summary>Create a directory-based cache manager.</summary>
+            <param name="directoryCacheManagerPathProvider">The provider used to acquire the base cache directory path.</param>
+            <param name="parameterValidator">The validator used to validate year, day and part values.</param>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.CookieValue">
+            <summary>Gets or sets the stored cookie value. The cookie should contain the cookie value for the key 'session', and should be placed in the directory provided by the <see cref="P:Tidy.AdventOfCode.DirectoryCacheManager.DirectoryCacheManagerPathProvider"/> instance named 'cookie.txt'. Consequent calls return a cached value, but setting the value updates the cache and stores the value in the text file.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.Directory">
+            <summary>Get the base directory used for caching.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.InputsDirectory">
+            <summary>Get the base directory used for caching input values.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.OutputsDirectory">
+            <summary>Get the base directory used for caching output values.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.DirectoryCacheManagerPathProvider">
+            <summary>The provider used to acquire the base cache directory path.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManager.ParameterValidator">
+            <summary>The validator used to validate year, day and part values.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.TryReadValue(System.IO.FileInfo,System.String@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.WriteInputAsync(System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.TryGetInputValue(System.Int32,System.Int32,System.String@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.WriteAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.TryGetResponseForAnswer(System.Int32,System.Int32,System.Int32,System.String,System.String@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.GetStableHash(System.String)">
+            <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as an <see cref="T:System.Int32"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="P:Tidy.AdventOfCode.DirectoryCacheManager.MD5"/> hash is calculated using <see cref="P:System.Text.Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
+            <param name="text">The text to calculate the simple hash for.</param>
+            <returns>The repeatable hash for the input <paramref name="text"/>.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider.#ctor(System.String)">
+            <summary>Create a simple provider that returns the provided path in the <see cref="P:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider.Path"/> property.</summary>
+            <param name="path">The path value to provide.</param>
+        </member>
+        <member name="P:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider.Path">
+            <summary>The path value. Doesn't mutate once the provider is instantiated.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.HtmlAgilityPackContentExtractor">
+            <summary>An <see cref="T:Tidy.AdventOfCode.IHtmlContentExtractor"/> that uses <see cref="N:HtmlAgilityPack"/> for extracting the &lt;main&gt; tag's value from provided HTML content.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.HtmlAgilityPackContentExtractor.Extract(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IApiCacheManager">
+            <summary>Represents an object responsible for storing and retrieving riddle inputs and corresponding responses for caching purposes.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IApiCacheManager.TryGetInputValue(System.Int32,System.Int32,System.String@)">
+            <summary>Gets the <paramref name="input"/> value for the corresponding <paramref name="year"/> and <paramref name="day"/> if available.</summary>
+            <param name="year">The corresponding year.</param>
+            <param name="day">The corresponding day.</param>
+            <param name="input">The input, if available. Not null if found.</param>
+            <returns>True if the <paramref name="input"/> was found.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IApiCacheManager.TryGetResponseForAnswer(System.Int32,System.Int32,System.Int32,System.String,System.String@)">
+            <summary>Gets the <paramref name="htmlResponse"/> value for the corresponding <paramref name="year"/>, <paramref name="day"/>, <paramref name="part"/> and <paramref name="answer"/>, if available.</summary>
+            <param name="year">The corresponding year.</param>
+            <param name="day">The corresponding day.</param>
+            <param name="part">The corresponding part.</param>
+            <param name="answer">The provided answer.</param>
+            <param name="htmlResponse">The HTML response, if available. Not null if found.</param>
+            <returns>True if the <paramref name="htmlResponse"/> was found.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IApiCacheManager.WriteAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Threading.CancellationToken)">
+            <summary>Store the <paramref name="answer"/> and corresponding <paramref name="htmlResponse"/> in the cache.</summary>
+            <param name="year">The corresponding year.</param>
+            <param name="day">The corresponding day.</param>
+            <param name="part">The corresponding part.</param>
+            <param name="answer">The provided answer.</param>
+            <param name="htmlResponse">The response, as recieved from the server.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when the write operations finished successfully.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IApiCacheManager.WriteInputAsync(System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
+            <summary>Store the provided <paramref name="input"/> in the cache.</summary>
+            <param name="year">The corresponding year.</param>
+            <param name="day">The corresponding day.</param>
+            <param name="input">The input corresponding to the year and day (for the given user).</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> that completes when the write operation finished successfully.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IApiCookieAccessor">
+            <summary>Used to retrieve or store the value for the 'session' cookie used on the https://adventofcode.com/ website.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.IApiCookieAccessor.CookieValue">
+            <summary>The value for the cookie named 'session'.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.ICachingApiHandler">
+            <summary>
+            A handler responsible for getting the inputs from and posting the answers to https://adventofcode.com/ using the user's session cookie.
+            Note that this handler uses local caching of the inputs and answers/results.
+            </summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.ICachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Get the input string value for the given <paramref name="year"/> and <paramref name="day"/> from the server. Note that input does not vary between the two parts of a riddle. If the input was already obtained, it will be returned from local file cache.
+            </summary>
+            <param name="year">The relevant year.</param>
+            <param name="day">The relevant day.</param>
+            <param name="cancellationToken">The token used for cancelling asynchronous requests.</param>
+            <returns>The input given for the <paramref name="year"/> and <paramref name="day"/>.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.ICachingApiHandler.PostAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get the result of a given answer to a riddle from the server. If the same answer was already posted, the result will be returned from local file cache. Note that this might interfere with correctly solving a riddle when multiple answers were posted in a short amount of time as AoC allows only one try per minute. In this case the warning result will be cached, and the cache might need to be cleared manually.
+            </summary>
+            <param name="year">The relevant year.</param>
+            <param name="day">The relevant day.</param>
+            <param name="part">The relevant part.</param>
+            <param name="answer">The answer, which is normally provided on the UI in an input box.</param>
+            <param name="cancellationToken">The token used for cancelling asynchronous requests.</param>
+            <returns>The response HTML's content of the &lt;main&gt; tag.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IDay">
+            <summary>Represents a riddle solution in the Advent of Code calendar.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IDay.ExecuteAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes the riddle solution and returns whatever result is materialized.
+            </summary>
+            <param name="part">The part to execute (1 or 2).</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>The materialized result that should be posted on the website's input field.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IDay.ParseInput(System.String)">
+            <summary>
+            Parses the provided input value to something that can be understood by the riddle's solution.
+            </summary>
+            <param name="rawInput">The raw input to be provided to the riddle.</param>
+            <returns>The parsed input value.</returns>
+        </member>
+        <member name="P:Tidy.AdventOfCode.IDay.Input">
+            <summary>The parsed input value.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IDayResolver">
+            <summary>Responsible for creating <see cref="T:Tidy.AdventOfCode.IDay"/> instances.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IDayResolver.CreateDay(System.Int32,System.Int32)">
+            <summary>Create a day object for a given <paramref name="year"/>-<paramref name="day"/> pair.</summary>
+            <param name="year">The year the <see cref="T:Tidy.AdventOfCode.IDay"/> instance corresponds to.</param>
+            <param name="day">The day the <see cref="T:Tidy.AdventOfCode.IDay"/> instance corresponds to.</param>
+            <returns>The constructed <see cref="T:Tidy.AdventOfCode.IDay"/> instance.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IDirectoryCacheManagerPathProvider">
+            <summary>The provider used to acquire the base cache directory path.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.IDirectoryCacheManagerPathProvider.Path">
+            <summary>The consumed property.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IHtmlContentExtractor">
+            <summary>An extractor that is able to extract the &lt;main&gt; tag from the provided HTML content.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IHtmlContentExtractor.Extract(System.String)">
+            <summary>Extracts the &lt;main&gt; tag from the provided HTML content.</summary>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IMultipleParser`1">
+            <summary>Represents a parser that can be reused as providing an array of <typeparamref name="T"/> values from the raw input.</summary>
+            <typeparam name="T">The instances that should be constructed from the provided input.</typeparam>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IMultipleParser`1.ParseMany(System.String)">
+            <summary>Parses/transforms the provided <paramref name="rawInput"/> input to <typeparamref name="T"/> instances.</summary>
+            <param name="rawInput">The input to be used for parsing. Generally the input can be obtained from the website after logging in, or the input can be mocked to provide the same input as if the provided examples in the riddle were given to the user as input.</param>
+            <returns>The constructed <typeparamref name="T"/> values.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.IParameterValidator">
+            <summary>Validates year, day and part values.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IParameterValidator.Validate(System.Int32,System.Int32)">
+            <summary>Validates a <paramref name="year"/>-<paramref name="day"/> pair.</summary>
+            <param name="year">The year value. Should be at least 2015, and shouldn't be larger than the current year.</param>
+            <param name="day">The day value. Should be between 1 and 25, but the <paramref name="year"/>-day pair should point to a day that is not in the future.</param>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IParameterValidator.Validate(System.Int32,System.Int32,System.Int32)">
+            <summary>Validates a <paramref name="year"/>-<paramref name="day"/> pair and a <paramref name="part"/> value.</summary>
+            <param name="year">The year value. Should be at least 2015, and shouldn't be larger than the current year.</param>
+            <param name="day">The day value. Should be between 1 and 25, but the <paramref name="year"/>-day pair should point to a day that is not in the future.</param>
+            <param name="part">Should be either 1 or 2.</param>
+        </member>
+        <member name="T:Tidy.AdventOfCode.ISingleParser`1">
+            <summary>Represents a parser that can be reused as providing an instance of the type <typeparamref name="T"/> from the raw input.</summary>
+            <typeparam name="T">The instance that should be constructed from the provided input.</typeparam>
+        </member>
+        <member name="M:Tidy.AdventOfCode.ISingleParser`1.ParseOne(System.String)">
+            <summary>Parses/transforms the provided <paramref name="rawInput"/> input to a <typeparamref name="T"/> instance.</summary>
+            <param name="rawInput">The input to be used for parsing. Generally the input can be obtained from the website after logging in, or the input can be mocked to provide the same input as if the provided examples in the riddle were given to the user as input.</param>
+            <returns>The constructed <typeparamref name="T"/> value.</returns>
+        </member>
+        <member name="T:Tidy.AdventOfCode.ParameterValidator">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.ParameterValidator.Validate(System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Tidy.AdventOfCode.ParameterValidator.Validate(System.Int32,System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Runner">
+            <summary>The default runner for executing potential solutions for Advent of Code riddles. By default, uses caching of input, answer and response values and directly calls the server at the https://adventofcode.com/ website to get the inputs and post the answers to the riddles.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Runner.#ctor(Tidy.AdventOfCode.IDayResolver,Tidy.AdventOfCode.ICachingApiHandler,Microsoft.Extensions.Logging.ILogger{Tidy.AdventOfCode.Runner})">
+            <summary>Creates a runner to execute <see cref="T:Tidy.AdventOfCode.IDay"/> instances' <see cref="M:Tidy.AdventOfCode.IDay.ExecuteAsync(System.Int32,System.Threading.CancellationToken)"/> methods, provide and parse the inputs, post the answers and log and store the result.</summary>
+            <param name="dayResolver">The resolver used to create <see cref="T:Tidy.AdventOfCode.IDay"/> instances.</param>
+            <param name="cachingApiHandler">The handler used to communicate with the server.</param>
+            <param name="logger">The logger used for logging.</param>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Runner.CreateDefault(System.String,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Reflection.Assembly[])">
+            <summary>
+            Creates a default <see cref="T:Tidy.AdventOfCode.Runner"/> by creating a <see cref="T:Microsoft.Extensions.DependencyInjection.ServiceProvider"/> instance by configuring the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> extension with the supplied parameters and retrieving the <see cref="T:Tidy.AdventOfCode.Runner"/> instance from the provider.
+            </summary>
+            <param name="cacheDirectoryPath">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> method.</param>
+            <param name="configureServices">An optional call to augment the created <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance with custom services or overrides.</param>
+            <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> method.</param>
+            <returns>The <see cref="T:Tidy.AdventOfCode.Runner"/> instance from the <see cref="T:Microsoft.Extensions.DependencyInjection.ServiceProvider"/>.</returns>
+        </member>
+        <member name="P:Tidy.AdventOfCode.Runner.DayResolver">
+            <summary>The resolver used to create <see cref="T:Tidy.AdventOfCode.IDay"/> instances.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.Runner.CachingApiHandler">
+            <summary>The handler used to communicate with the server.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.Runner.Logger">
+            <summary>The logger used for logging.</summary>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Runner.ExecuteAsync(System.Int32,System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Executes the solution found in <see cref="T:Tidy.AdventOfCode.IDay"/> for <paramref name="year"/>, <paramref name="dayNumber"/> and <paramref name="part"/>. By default, a run consist of the following:<br/>
+            - creating an <see cref="T:Tidy.AdventOfCode.IDay"/> using <see cref="M:Tidy.AdventOfCode.DayResolver.CreateDay(System.Int32,System.Int32)"/>,<br/>
+            - getting the input value for the riddle (either from the server or API),<br/>
+            - parse the input using the <see cref="M:Tidy.AdventOfCode.IDay.ParseInput(System.String)"/> method and store the result in the <see cref="P:Tidy.AdventOfCode.IDay.Input"/> property,<br/>
+            - execute the <see cref="M:Tidy.AdventOfCode.IDay.ExecuteAsync(System.Int32,System.Threading.CancellationToken)"/> method to get the answer to the riddle,<br/>
+            - post the answer to the server or retrieve it from cache (if it was already posted).<br/>
+            At all points, the method logs useful information (running times, the answer, the result) to the <see cref="P:Tidy.AdventOfCode.Runner.Logger"/>.
+            </summary>
+            <param name="year">The riddle's corresponding year (between 2015 and the current year).</param>
+            <param name="dayNumber">The riddle's corresponding day number (between 1 and 25).</param>
+            <param name="part">The riddle's corresponding part (1 or 2).</param>
+            <param name="cancellationToken">The cancellation token to cancel any pending operations in case a cancellation (e.g. application exit) is requested.</param>
+            <returns>The result of posting the answer to the server.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
+            <summary>An extension to register the default implementations to a given <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.</summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])">
+            <summary>An extension to register the default implementations to a given <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.<br/>
+            The following steps are taken:<br/>
+            - console logging is added,<br/>
+            - the <see cref="T:Tidy.AdventOfCode.ParameterValidator"/> is registered an an <see cref="T:Tidy.AdventOfCode.IParameterValidator"/>,<br/>
+            - the <see cref="T:Tidy.AdventOfCode.DayResolver"/> is registered as an <see cref="T:Tidy.AdventOfCode.IDayResolver"/>, using the provided <paramref name="additionalSolutionAssemblies"/>,<br/>
+            - the <see cref="T:Tidy.AdventOfCode.HtmlAgilityPackContentExtractor"/> is registered as an <see cref="T:Tidy.AdventOfCode.IHtmlContentExtractor"/>,<br/>
+            - the given <paramref name="cacheDirectoryPath"/> is used to register a <see cref="T:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider"/> as an <see cref="T:Tidy.AdventOfCode.IDirectoryCacheManagerPathProvider"/>,<br/>
+            - the <see cref="T:Tidy.AdventOfCode.CachingApiHandler"/> is registered as an <see cref="T:Tidy.AdventOfCode.ICachingApiHandler"/>,<br/>
+            - the <see cref="T:Tidy.AdventOfCode.DirectoryCacheManager"/> is registered for resolving for both <see cref="T:Tidy.AdventOfCode.IApiCacheManager"/> and <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/> (technically it is <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient"/> for requesting as an <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/>),<br/>
+            - a <see cref="T:Tidy.AdventOfCode.Runner"/> instance (as itself).<br/>
+            All instances are registered for <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> lifetimes.<br/>
+            Any and all implementations can be switched out by registering the relevant service type after calling this method.
+            </summary>
+            <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to populate with <see cref="N:Tidy.AdventOfCode"/> services.</param>
+            <param name="cacheDirectoryPath">The directory path used for caching the cookie, inputs, answers and responses.</param>
+            <param name="additionalSolutionAssemblies">The assemblies to scan when looking for <see cref="T:Tidy.AdventOfCode.IDay"/> implementations beside the entry assembly.</param>
+            <returns>The <paramref name="services"/> collection for chaining.</returns>
+        </member>
+    </members>
+</doc>
