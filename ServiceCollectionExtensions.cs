@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
 using Tidy.AdventOfCode;
@@ -11,29 +12,34 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>An extension to register the default implementations to a given <see cref="IServiceCollection"/>.<br/>
         /// The following steps are taken:<br/>
         /// - console logging is added,<br/>
+        /// - configures the <see cref="RunnerOptions"/> using the provided <paramref name="configureOptions"/> (if available),<br/>
         /// - the <see cref="ParameterValidator"/> is registered an an <see cref="IParameterValidator"/>,<br/>
         /// - the <see cref="DayResolver"/> is registered as an <see cref="IDayResolver"/>, using the provided <paramref name="additionalSolutionAssemblies"/>,<br/>
         /// - the <see cref="HtmlAgilityPackContentExtractor"/> is registered as an <see cref="IHtmlContentExtractor"/>,<br/>
         /// - the given <paramref name="cacheDirectoryPath"/> is used to register a <see cref="DirectoryCacheManagerPathProvider"/> as an <see cref="IDirectoryCacheManagerPathProvider"/>,<br/>
         /// - the <see cref="CachingApiHandler"/> is registered as an <see cref="ICachingApiHandler"/>,<br/>
-        /// - the <see cref="DirectoryCacheManager"/> is registered for resolving for both <see cref="IApiCacheManager"/> and <see cref="IApiCookieAccessor"/> (technically it is <see cref="ServiceLifetime.Transient"/> for requesting as an <see cref="IApiCookieAccessor"/>),<br/>
+        /// - the <see cref="DirectoryCacheManager"/> is registered for resolving for both <see cref="IApiCacheManager"/> and <see cref="IApiCookieAccessor"/> (technically it is <see cref="ServiceLifetime.Transient"/> for requesting as an <see cref="IApiCookieAccessor"/>; unless both <see cref="RunnerOptions.DisableAutomaticAnswerUpload"/> and <see cref="RunnerOptions.DisableAutomaticInputDownload"/> are true, in which case and empty cookie accessor instance is added instead for <see cref="IApiCookieAccessor"/>),<br/>
         /// - a <see cref="Runner"/> instance (as itself).<br/>
         /// All instances are registered for <see cref="ServiceLifetime.Singleton"/> lifetimes.<br/>
         /// Any and all implementations can be switched out by registering the relevant service type after calling this method.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to populate with <see cref="Tidy.AdventOfCode"/> services.</param>
         /// <param name="cacheDirectoryPath">The directory path used for caching the cookie, inputs, answers and responses.</param>
+        /// <param name="configureOptions">An action used to configure different aspects of the <see cref="Runner"/>.</param>
         /// <param name="additionalSolutionAssemblies">The assemblies to scan when looking for <see cref="IDay"/> implementations beside the entry assembly.</param>
         /// <returns>The <paramref name="services"/> collection for chaining.</returns>
-        public static IServiceCollection AddTidyAdventOfCode(this IServiceCollection services, string cacheDirectoryPath, params Assembly[] additionalSolutionAssemblies) => services
+        public static IServiceCollection AddTidyAdventOfCode(this IServiceCollection services, string cacheDirectoryPath, Action<RunnerOptions>? configureOptions = null, params Assembly[] additionalSolutionAssemblies) => services
             .AddLogging(l => l.AddConsole())
+            .Configure(configureOptions ?? (o => { }))
             .AddSingleton<IParameterValidator, ParameterValidator>()
             .AddSingleton<IDayResolver>(s => new DayResolver(s.GetRequiredService<IParameterValidator>(), s, additionalSolutionAssemblies))
             .AddSingleton<IHtmlContentExtractor, HtmlAgilityPackContentExtractor>()
             .AddSingleton<IDirectoryCacheManagerPathProvider>(new DirectoryCacheManagerPathProvider(cacheDirectoryPath))
             .AddSingleton<ICachingApiHandler, CachingApiHandler>()
             .AddSingleton<IApiCacheManager, DirectoryCacheManager>()
-            .AddTransient<IApiCookieAccessor>(s => s.GetRequiredService<IApiCacheManager>() as DirectoryCacheManager ?? throw new InvalidOperationException($"Unable to resolve {nameof(IApiCacheManager)} as {nameof(DirectoryCacheManager)} to produce {nameof(IApiCookieAccessor)}. Either add or remove custom registration for both interfaces."))
+            .AddTransient<IApiCookieAccessor>(s => (s.GetRequiredService<IOptions<RunnerOptions>>() is var options && options.Value.DisableAutomaticAnswerUpload && options.Value.DisableAutomaticInputDownload)
+                ? EmptyApiCookieAccessor.Instance
+                : s.GetRequiredService<IApiCacheManager>() as DirectoryCacheManager ?? throw new InvalidOperationException($"Unable to resolve {nameof(IApiCacheManager)} as {nameof(DirectoryCacheManager)} to produce {nameof(IApiCookieAccessor)}. Either add or remove custom registration for both interfaces."))
             .AddSingleton<Runner>();
     }
 }

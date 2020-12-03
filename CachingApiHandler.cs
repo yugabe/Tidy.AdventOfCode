@@ -33,9 +33,12 @@ namespace Tidy.AdventOfCode
         }
 
         /// <inheritdoc/>
-        public async Task<string> GetInputAsync(int year, int day, CancellationToken cancellationToken)
+        public async Task<string> GetInputAsync(int year, int day, bool useCacheOnly, CancellationToken cancellationToken)
         {
             ParameterValidator.Validate(year, day);
+
+            if (useCacheOnly)
+                ApiCacheManager.GetInputValue(year, day);
 
             if (ApiCacheManager.TryGetInputValue(year, day, out var input))
                 return input;

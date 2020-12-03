@@ -65,12 +65,12 @@ namespace Tidy.AdventOfCode
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The result from the part-specific execution method (<see cref="ExecutePart1Async(CancellationToken)"/> or <see cref="ExecutePart2Async(CancellationToken)"/>);</returns>
         public virtual async Task<object> ExecuteAsync(int part, CancellationToken cancellationToken = default) =>
-            await (part switch
+            part switch
             {
-                1 => ExecutePart1Async(cancellationToken),
-                2 => ExecutePart2Async(cancellationToken),
+                1 => await ExecutePart1Async(cancellationToken),
+                2 => await ExecutePart2Async(cancellationToken),
                 _ => throw new ArgumentOutOfRangeException(nameof(part), "The part to execute should be either 1 or 2.")
-            });
+            };
 
         /// <inheritdoc cref="IDay.ParseInput(string)"/>
         public abstract T ParseInput(string rawInput);

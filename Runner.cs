@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,23 +17,26 @@ namespace Tidy.AdventOfCode
         /// <param name="dayResolver">The resolver used to create <see cref="IDay"/> instances.</param>
         /// <param name="cachingApiHandler">The handler used to communicate with the server.</param>
         /// <param name="logger">The logger used for logging.</param>
-        public Runner(IDayResolver dayResolver, ICachingApiHandler cachingApiHandler, ILogger<Runner> logger)
+        /// <param name="options">The options object used for configuring different aspects of the runner.</param>
+        public Runner(IDayResolver dayResolver, ICachingApiHandler cachingApiHandler, ILogger<Runner> logger, IOptions<RunnerOptions> options)
         {
             DayResolver = dayResolver;
             CachingApiHandler = cachingApiHandler;
             Logger = logger;
+            Options = options;
         }
 
         /// <summary>
-        /// Creates a default <see cref="Runner"/> by creating a <see cref="ServiceProvider"/> instance by configuring the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode(IServiceCollection, string, Assembly[])"/> extension with the supplied parameters and retrieving the <see cref="Runner"/> instance from the provider.
+        /// Creates a default <see cref="Runner"/> by creating a <see cref="ServiceProvider"/> instance by configuring the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> extension with the supplied parameters and retrieving the <see cref="Runner"/> instance from the provider.
         /// </summary>
-        /// <param name="cacheDirectoryPath">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode(IServiceCollection, string, Assembly[])"/> method.</param>
+        /// <param name="cacheDirectoryPath">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method.</param>
+        /// <param name="configureOptions">An action used to configure different aspects of the <see cref="Runner"/>.</param>
         /// <param name="configureServices">An optional call to augment the created <see cref="IServiceCollection"/> instance with custom services or overrides.</param>
-        /// <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode(IServiceCollection, string, Assembly[])"/> method.</param>
+        /// <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method.</param>
         /// <returns>The <see cref="Runner"/> instance from the <see cref="ServiceProvider"/>.</returns>
-        public static Runner CreateDefault(string cacheDirectoryPath, Action<IServiceCollection>? configureServices = null, params Assembly[] additionalSolutionAssemblies)
+        public static Runner CreateDefault(string cacheDirectoryPath, Action<RunnerOptions>? configureOptions = null, Action<IServiceCollection>? configureServices = null, params Assembly[] additionalSolutionAssemblies)
         {
-            var services = new ServiceCollection().AddTidyAdventOfCode(cacheDirectoryPath, additionalSolutionAssemblies);
+            var services = new ServiceCollection().AddTidyAdventOfCode(cacheDirectoryPath, configureOptions, additionalSolutionAssemblies);
             configureServices?.Invoke(services);
             return services.BuildServiceProvider().GetRequiredService<Runner>();
         }
@@ -42,6 +47,8 @@ namespace Tidy.AdventOfCode
         public ICachingApiHandler CachingApiHandler { get; }
         /// <summary>The logger used for logging.</summary>
         public ILogger<Runner> Logger { get; }
+        /// <summary>Options for configuring different aspects of the <see cref="Runner"/>.</summary>
+        public IOptions<RunnerOptions> Options { get; }
 
         /// <summary>
         /// Executes the solution found in <see cref="IDay"/> for <paramref name="year"/>, <paramref name="dayNumber"/> and <paramref name="part"/>. By default, a run consist of the following:<br/>
@@ -66,7 +73,7 @@ namespace Tidy.AdventOfCode
                 using var day = MeasureAndLog(() => DayResolver.CreateDay(year, dayNumber),
                     (r, t) => Logger.LogDebug("{Year}-{Day}: Day of type {DayType} was created in {Elapsed}.", year, dayNumber, r.GetType().FullName, t));
 
-                var input = await MeasureAndLogAsync(async () => await CachingApiHandler.GetInputAsync(year, dayNumber, cancellationToken),
+                var input = await MeasureAndLogAsync(async () => await CachingApiHandler.GetInputAsync(year, dayNumber, Options.Value.DisableAutomaticInputDownload, cancellationToken),
                     (r, t) => Logger.LogDebug("{Year}-{Day}: Input of length {InputLength} was acquired in {Elapsed}.", year, dayNumber, r.Length, t));
 
                 day.Input = MeasureAndLog(() => day.ParseInput(input),
@@ -81,6 +88,24 @@ namespace Tidy.AdventOfCode
 
                 if (string.IsNullOrWhiteSpace(answer))
                     throw new InvalidOperationException($"The answer for year {year}, day {dayNumber} part {part} was null or white space.");
+
+                if (Options.Value.CopyAnswerToClipboard && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = $"/c \"echo {answer.Replace("\"", "\\\"")}| clip\"",
+                            RedirectStandardOutput = true,
+                        }
+                    };
+                    process.Start();
+                    process.StandardOutput.ReadToEnd();
+                }
+
+                if (Options.Value.DisableAutomaticAnswerUpload)
+                    return answer;
 
                 var result = await MeasureAndLogAsync(async () => await CachingApiHandler.PostAnswerAsync(year, dayNumber, part, answer, cancellationToken),
                     (r, t) =>

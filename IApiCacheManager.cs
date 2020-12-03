@@ -14,6 +14,12 @@ namespace Tidy.AdventOfCode
         /// <returns>True if the <paramref name="input"/> was found.</returns>
         bool TryGetInputValue(int year, int day, [NotNullWhen(true)] out string? input);
 
+        /// <summary>Gets the input value for the corresponding <paramref name="year"/> and <paramref name="day"/>, or throws an exception if not found.</summary>
+        /// <param name="year">The corresponding year.</param>
+        /// <param name="day">The corresponding day.</param>
+        /// <returns>The plain text input value as found in the cache.</returns>
+        string GetInputValue(int year, int day);
+
         /// <summary>Gets the <paramref name="htmlResponse"/> value for the corresponding <paramref name="year"/>, <paramref name="day"/>, <paramref name="part"/> and <paramref name="answer"/>, if available.</summary>
         /// <param name="year">The corresponding year.</param>
         /// <param name="day">The corresponding day.</param>

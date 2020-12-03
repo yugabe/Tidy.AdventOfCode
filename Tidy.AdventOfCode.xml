@@ -26,7 +26,7 @@
             <param name="parameterValidator">The parameter validator. Used to validate year, day and part values.</param>
             <param name="htmlContentExtractor">The HTML content extractor. Used to extract the &lt;main&gt; tag's content from the full HTML from HTTP body.</param>
         </member>
-        <member name="M:Tidy.AdventOfCode.CachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Tidy.AdventOfCode.CachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Boolean,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
         <member name="M:Tidy.AdventOfCode.CachingApiHandler.PostAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
@@ -180,6 +180,9 @@
         <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.TryGetInputValue(System.Int32,System.Int32,System.String@)">
             <inheritdoc/>
         </member>
+        <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.GetInputValue(System.Int32,System.Int32)">
+            <inheritdoc/>
+        </member>
         <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.WriteAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
@@ -216,6 +219,12 @@
             <param name="day">The corresponding day.</param>
             <param name="input">The input, if available. Not null if found.</param>
             <returns>True if the <paramref name="input"/> was found.</returns>
+        </member>
+        <member name="M:Tidy.AdventOfCode.IApiCacheManager.GetInputValue(System.Int32,System.Int32)">
+            <summary>Gets the input value for the corresponding <paramref name="year"/> and <paramref name="day"/>, or throws an exception if not found.</summary>
+            <param name="year">The corresponding year.</param>
+            <param name="day">The corresponding day.</param>
+            <returns>The plain text input value as found in the cache.</returns>
         </member>
         <member name="M:Tidy.AdventOfCode.IApiCacheManager.TryGetResponseForAnswer(System.Int32,System.Int32,System.Int32,System.String,System.String@)">
             <summary>Gets the <paramref name="htmlResponse"/> value for the corresponding <paramref name="year"/>, <paramref name="day"/>, <paramref name="part"/> and <paramref name="answer"/>, if available.</summary>
@@ -256,12 +265,13 @@
             Note that this handler uses local caching of the inputs and answers/results.
             </summary>
         </member>
-        <member name="M:Tidy.AdventOfCode.ICachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Tidy.AdventOfCode.ICachingApiHandler.GetInputAsync(System.Int32,System.Int32,System.Boolean,System.Threading.CancellationToken)">
             <summary>
-            Get the input string value for the given <paramref name="year"/> and <paramref name="day"/> from the server. Note that input does not vary between the two parts of a riddle. If the input was already obtained, it will be returned from local file cache.
+            Get the input string value for the given <paramref name="year"/> and <paramref name="day"/> from the server (unless ignored by <paramref name="useCacheOnly"/>). Note that input does not vary between the two parts of a riddle. If the input was already obtained (or <paramref name="useCacheOnly"/> is true), it will be returned from local file cache.
             </summary>
             <param name="year">The relevant year.</param>
             <param name="day">The relevant day.</param>
+            <param name="useCacheOnly">Whether to use the local cache to look for the input only, and not the server.</param>
             <param name="cancellationToken">The token used for cancelling asynchronous requests.</param>
             <returns>The input given for the <paramref name="year"/> and <paramref name="day"/>.</returns>
         </member>
@@ -362,19 +372,21 @@
         <member name="T:Tidy.AdventOfCode.Runner">
             <summary>The default runner for executing potential solutions for Advent of Code riddles. By default, uses caching of input, answer and response values and directly calls the server at the https://adventofcode.com/ website to get the inputs and post the answers to the riddles.</summary>
         </member>
-        <member name="M:Tidy.AdventOfCode.Runner.#ctor(Tidy.AdventOfCode.IDayResolver,Tidy.AdventOfCode.ICachingApiHandler,Microsoft.Extensions.Logging.ILogger{Tidy.AdventOfCode.Runner})">
+        <member name="M:Tidy.AdventOfCode.Runner.#ctor(Tidy.AdventOfCode.IDayResolver,Tidy.AdventOfCode.ICachingApiHandler,Microsoft.Extensions.Logging.ILogger{Tidy.AdventOfCode.Runner},Microsoft.Extensions.Options.IOptions{Tidy.AdventOfCode.RunnerOptions})">
             <summary>Creates a runner to execute <see cref="T:Tidy.AdventOfCode.IDay"/> instances' <see cref="M:Tidy.AdventOfCode.IDay.ExecuteAsync(System.Int32,System.Threading.CancellationToken)"/> methods, provide and parse the inputs, post the answers and log and store the result.</summary>
             <param name="dayResolver">The resolver used to create <see cref="T:Tidy.AdventOfCode.IDay"/> instances.</param>
             <param name="cachingApiHandler">The handler used to communicate with the server.</param>
             <param name="logger">The logger used for logging.</param>
+            <param name="options">The options object used for configuring different aspects of the runner.</param>
         </member>
-        <member name="M:Tidy.AdventOfCode.Runner.CreateDefault(System.String,System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Reflection.Assembly[])">
+        <member name="M:Tidy.AdventOfCode.Runner.CreateDefault(System.String,System.Action{Tidy.AdventOfCode.RunnerOptions},System.Action{Microsoft.Extensions.DependencyInjection.IServiceCollection},System.Reflection.Assembly[])">
             <summary>
-            Creates a default <see cref="T:Tidy.AdventOfCode.Runner"/> by creating a <see cref="T:Microsoft.Extensions.DependencyInjection.ServiceProvider"/> instance by configuring the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> extension with the supplied parameters and retrieving the <see cref="T:Tidy.AdventOfCode.Runner"/> instance from the provider.
+            Creates a default <see cref="T:Tidy.AdventOfCode.Runner"/> by creating a <see cref="T:Microsoft.Extensions.DependencyInjection.ServiceProvider"/> instance by configuring the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Tidy.AdventOfCode.RunnerOptions},System.Reflection.Assembly[])"/> extension with the supplied parameters and retrieving the <see cref="T:Tidy.AdventOfCode.Runner"/> instance from the provider.
             </summary>
-            <param name="cacheDirectoryPath">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> method.</param>
+            <param name="cacheDirectoryPath">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Tidy.AdventOfCode.RunnerOptions},System.Reflection.Assembly[])"/> method.</param>
+            <param name="configureOptions">An action used to configure different aspects of the <see cref="T:Tidy.AdventOfCode.Runner"/>.</param>
             <param name="configureServices">An optional call to augment the created <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> instance with custom services or overrides.</param>
-            <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])"/> method.</param>
+            <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Tidy.AdventOfCode.RunnerOptions},System.Reflection.Assembly[])"/> method.</param>
             <returns>The <see cref="T:Tidy.AdventOfCode.Runner"/> instance from the <see cref="T:Microsoft.Extensions.DependencyInjection.ServiceProvider"/>.</returns>
         </member>
         <member name="P:Tidy.AdventOfCode.Runner.DayResolver">
@@ -385,6 +397,9 @@
         </member>
         <member name="P:Tidy.AdventOfCode.Runner.Logger">
             <summary>The logger used for logging.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.Runner.Options">
+            <summary>Options for configuring different aspects of the <see cref="T:Tidy.AdventOfCode.Runner"/>.</summary>
         </member>
         <member name="M:Tidy.AdventOfCode.Runner.ExecuteAsync(System.Int32,System.Int32,System.Int32,System.Threading.CancellationToken)">
             <summary>
@@ -402,25 +417,39 @@
             <param name="cancellationToken">The cancellation token to cancel any pending operations in case a cancellation (e.g. application exit) is requested.</param>
             <returns>The result of posting the answer to the server.</returns>
         </member>
+        <member name="T:Tidy.AdventOfCode.RunnerOptions">
+            <summary>The options object used to configure different aspects of the default <see cref="T:Tidy.AdventOfCode.Runner"/>.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.RunnerOptions.DisableAutomaticInputDownload">
+            <summary>If set to true, the download (and caching) of the user's input will be disabled. Default value is false.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.RunnerOptions.DisableAutomaticAnswerUpload">
+            <summary>If set to true, the upload (and caching) of the user's answers and the caching of recieved responses will be disabled. Default value is false.</summary>
+        </member>
+        <member name="P:Tidy.AdventOfCode.RunnerOptions.CopyAnswerToClipboard">
+            <summary>If set to true, the answer value will be copied to the clipboard after a successful run (only on Windows). Default is false.</summary>
+        </member>
         <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
             <summary>An extension to register the default implementations to a given <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.</summary>
         </member>
-        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Reflection.Assembly[])">
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddTidyAdventOfCode(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Action{Tidy.AdventOfCode.RunnerOptions},System.Reflection.Assembly[])">
             <summary>An extension to register the default implementations to a given <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>.<br/>
             The following steps are taken:<br/>
             - console logging is added,<br/>
+            - configures the <see cref="T:Tidy.AdventOfCode.RunnerOptions"/> using the provided <paramref name="configureOptions"/> (if available),<br/>
             - the <see cref="T:Tidy.AdventOfCode.ParameterValidator"/> is registered an an <see cref="T:Tidy.AdventOfCode.IParameterValidator"/>,<br/>
             - the <see cref="T:Tidy.AdventOfCode.DayResolver"/> is registered as an <see cref="T:Tidy.AdventOfCode.IDayResolver"/>, using the provided <paramref name="additionalSolutionAssemblies"/>,<br/>
             - the <see cref="T:Tidy.AdventOfCode.HtmlAgilityPackContentExtractor"/> is registered as an <see cref="T:Tidy.AdventOfCode.IHtmlContentExtractor"/>,<br/>
             - the given <paramref name="cacheDirectoryPath"/> is used to register a <see cref="T:Tidy.AdventOfCode.DirectoryCacheManagerPathProvider"/> as an <see cref="T:Tidy.AdventOfCode.IDirectoryCacheManagerPathProvider"/>,<br/>
             - the <see cref="T:Tidy.AdventOfCode.CachingApiHandler"/> is registered as an <see cref="T:Tidy.AdventOfCode.ICachingApiHandler"/>,<br/>
-            - the <see cref="T:Tidy.AdventOfCode.DirectoryCacheManager"/> is registered for resolving for both <see cref="T:Tidy.AdventOfCode.IApiCacheManager"/> and <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/> (technically it is <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient"/> for requesting as an <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/>),<br/>
+            - the <see cref="T:Tidy.AdventOfCode.DirectoryCacheManager"/> is registered for resolving for both <see cref="T:Tidy.AdventOfCode.IApiCacheManager"/> and <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/> (technically it is <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient"/> for requesting as an <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/>; unless both <see cref="P:Tidy.AdventOfCode.RunnerOptions.DisableAutomaticAnswerUpload"/> and <see cref="P:Tidy.AdventOfCode.RunnerOptions.DisableAutomaticInputDownload"/> are true, in which case and empty cookie accessor instance is added instead for <see cref="T:Tidy.AdventOfCode.IApiCookieAccessor"/>),<br/>
             - a <see cref="T:Tidy.AdventOfCode.Runner"/> instance (as itself).<br/>
             All instances are registered for <see cref="F:Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton"/> lifetimes.<br/>
             Any and all implementations can be switched out by registering the relevant service type after calling this method.
             </summary>
             <param name="services">The <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/> to populate with <see cref="N:Tidy.AdventOfCode"/> services.</param>
             <param name="cacheDirectoryPath">The directory path used for caching the cookie, inputs, answers and responses.</param>
+            <param name="configureOptions">An action used to configure different aspects of the <see cref="T:Tidy.AdventOfCode.Runner"/>.</param>
             <param name="additionalSolutionAssemblies">The assemblies to scan when looking for <see cref="T:Tidy.AdventOfCode.IDay"/> implementations beside the entry assembly.</param>
             <returns>The <paramref name="services"/> collection for chaining.</returns>
         </member>

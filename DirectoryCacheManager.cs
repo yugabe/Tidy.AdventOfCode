@@ -63,6 +63,14 @@ namespace Tidy.AdventOfCode
         }
 
         /// <inheritdoc/>
+        public string GetInputValue(int year, int day)
+        {
+            if (!TryGetInputValue(year, day, out var input))
+                throw new InvalidOperationException($"The input for year {year} and day {day} was not found in the cache. The location should be:\n'{Path.Combine(InputsDirectory.FullName, $"{year}-{day}.txt")}'");
+            return input;
+        }
+
+        /// <inheritdoc/>
         public async Task WriteAnswerAsync(int year, int day, int part, string answer, string htmlResponse, CancellationToken cancellationToken)
         {
             ParameterValidator.Validate(year, day, part);
