@@ -2,6 +2,21 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 1.2.0
+
+So much work, so little code! Now you can run the runner with all the default settings by just putting this into your Program.cs file:
+
+``` C#
+await Tidy.AdventOfCode.Runner.CreateDefault().ExecuteAsync();
+```
+
+I mean, yeah, that's ALL the code that's needed, not even any more `using`s or anything.
+
+The little features that made these possible are:
+- A new `IParameterParser` service, that can parse strings to year-dayNumber(-part) tuples.
+- A new caching mechanism, that stores the last parameters that are supplied to the runner's `ExecuteAsync` method.
+- The default cache directory on Windows is the APPDATA (usually C:\Users\you\AppData\Roaming) folder's 'Tidy.AdventOfCode' subdirectory. You can find all the cached files here.
+
 ## 1.1.0
 
 Made the `Runner` configurable in a few aspects:

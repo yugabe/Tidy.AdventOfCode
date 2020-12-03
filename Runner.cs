@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -18,27 +19,18 @@ namespace Tidy.AdventOfCode
         /// <param name="cachingApiHandler">The handler used to communicate with the server.</param>
         /// <param name="logger">The logger used for logging.</param>
         /// <param name="options">The options object used for configuring different aspects of the runner.</param>
-        public Runner(IDayResolver dayResolver, ICachingApiHandler cachingApiHandler, ILogger<Runner> logger, IOptions<RunnerOptions> options)
+        /// <param name="parameterValidator">The validator used to validate yearday and part values.</param>
+        /// <param name="cachedContentManager">Used for caching the execution parameters (year, dayNumber and part values).</param>
+        /// <param name="parameterParser">The parser used to get the valid format of the parsable year-dayNumber-part strings.</param>
+        public Runner(IDayResolver dayResolver, ICachingApiHandler cachingApiHandler, ILogger<Runner> logger, IOptions<RunnerOptions> options, IParameterValidator parameterValidator, ICachedContentManager cachedContentManager, IParameterParser parameterParser)
         {
             DayResolver = dayResolver;
             CachingApiHandler = cachingApiHandler;
             Logger = logger;
             Options = options;
-        }
-
-        /// <summary>
-        /// Creates a default <see cref="Runner"/> by creating a <see cref="ServiceProvider"/> instance by configuring the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> extension with the supplied parameters and retrieving the <see cref="Runner"/> instance from the provider.
-        /// </summary>
-        /// <param name="cacheDirectoryPath">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method.</param>
-        /// <param name="configureOptions">An action used to configure different aspects of the <see cref="Runner"/>.</param>
-        /// <param name="configureServices">An optional call to augment the created <see cref="IServiceCollection"/> instance with custom services or overrides.</param>
-        /// <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method.</param>
-        /// <returns>The <see cref="Runner"/> instance from the <see cref="ServiceProvider"/>.</returns>
-        public static Runner CreateDefault(string cacheDirectoryPath, Action<RunnerOptions>? configureOptions = null, Action<IServiceCollection>? configureServices = null, params Assembly[] additionalSolutionAssemblies)
-        {
-            var services = new ServiceCollection().AddTidyAdventOfCode(cacheDirectoryPath, configureOptions, additionalSolutionAssemblies);
-            configureServices?.Invoke(services);
-            return services.BuildServiceProvider().GetRequiredService<Runner>();
+            ParameterValidator = parameterValidator;
+            CachedContentManager = cachedContentManager;
+            ParameterParser = parameterParser;
         }
 
         /// <summary>The resolver used to create <see cref="IDay"/> instances.</summary>
@@ -49,6 +41,63 @@ namespace Tidy.AdventOfCode
         public ILogger<Runner> Logger { get; }
         /// <summary>Options for configuring different aspects of the <see cref="Runner"/>.</summary>
         public IOptions<RunnerOptions> Options { get; }
+        /// <summary>The validator used to validate yearday and part values.</summary>
+        public IParameterValidator ParameterValidator { get; }
+        /// <summary>Used for caching the execution parameters (year, dayNumber and part values).</summary>
+        public ICachedContentManager CachedContentManager { get; }
+        /// <summary>The parser used to get the valid format of the parsable year-dayNumber-part strings.</summary>
+        public IParameterParser ParameterParser { get; }
+
+        /// <summary>
+        /// Creates a default <see cref="Runner"/> by creating a <see cref="ServiceProvider"/> instance by configuring the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> extension with the supplied parameters and retrieving the <see cref="Runner"/> instance from the provider.
+        /// </summary>
+        /// <param name="cacheDirectoryPath">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method. If null, on Windows, a directory named Tidy.AdventOfCode is created in the user's AppData folder (as provided by the APPDATA environment variable). If null, but not on Windows, an <see cref="ArgumentNullException"/> is thrown.</param>
+        /// <param name="configureOptions">An action used to configure different aspects of the <see cref="Runner"/>.</param>
+        /// <param name="configureServices">An optional call to augment the created <see cref="IServiceCollection"/> instance with custom services or overrides.</param>
+        /// <param name="additionalSolutionAssemblies">This parameter is passed to the <see cref="ServiceCollectionExtensions.AddTidyAdventOfCode"/> method.</param>
+        /// <returns>The <see cref="Runner"/> instance from the <see cref="ServiceProvider"/>.</returns>
+        public static Runner CreateDefault(string? cacheDirectoryPath = null, Action<RunnerOptions>? configureOptions = null, Action<IServiceCollection>? configureServices = null, params Assembly[] additionalSolutionAssemblies)
+        {
+            var services = new ServiceCollection().AddTidyAdventOfCode(cacheDirectoryPath ??
+                (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? Directory.CreateDirectory(Path.Combine(Environment.GetEnvironmentVariable("APPDATA")!, "Tidy.AdventOfCode")).FullName
+                    : throw new ArgumentNullException(nameof(cacheDirectoryPath), "The path has to be supplied if not running on Windows.")), configureOptions, additionalSolutionAssemblies);
+            configureServices?.Invoke(services);
+            return services.BuildServiceProvider().GetRequiredService<Runner>();
+        }
+
+        /// <summary>Gets the parameters (year, day number and part) from the Console standard input. The default is the cached value. This method loops until a correctly formatted parameter tuple is returned.</summary>
+        /// <returns>The values provided by the user.</returns>
+        public virtual (int year, int dayNumber, int part) GetParametersFromConsole()
+        {
+            Logger.LogInformation("Getting parameters from console...");
+            if (!CachedContentManager.TryGetLastParameters(out var parameters))
+                parameters = (DateTime.Today.Year, DateTime.Today.Month == 12 && DateTime.Today.Day <= 25 ? DateTime.Today.Day : 1, 1);
+
+            while (true)
+            {
+                static void WriteInverted(string text)
+                {
+                    Console.ResetColor();
+                    (Console.BackgroundColor, Console.ForegroundColor) = (Console.ForegroundColor, Console.BackgroundColor);
+                    Console.Write(text);
+                    Console.ResetColor();
+                }
+
+                Console.ResetColor();
+                Console.Write($"Please input the year, day and part values as '");
+                WriteInverted(ParameterParser.LongFormatString);
+                Console.Write("' to execute the corresponding riddle's solution.\nLeave empty to use '");
+                WriteInverted(ParameterParser.Convert(parameters.Value.year, parameters.Value.dayNumber, parameters.Value.part));
+                Console.WriteLine("':");
+                var line = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(line))
+                    return parameters.Value;
+                if (ParameterParser.TryParseFull(line, out var parsed))
+                    return parsed.Value;
+                Console.WriteLine("Invalid value provided.");
+            }
+        }
 
         /// <summary>
         /// Executes the solution found in <see cref="IDay"/> for <paramref name="year"/>, <paramref name="dayNumber"/> and <paramref name="part"/>. By default, a run consist of the following:<br/>
@@ -63,9 +112,11 @@ namespace Tidy.AdventOfCode
         /// <param name="dayNumber">The riddle's corresponding day number (between 1 and 25).</param>
         /// <param name="part">The riddle's corresponding part (1 or 2).</param>
         /// <param name="cancellationToken">The cancellation token to cancel any pending operations in case a cancellation (e.g. application exit) is requested.</param>
-        /// <returns>The result of posting the answer to the server.</returns>
+        /// <returns>The result of posting the answer to the server, or the answer if posting is disabled.</returns>
         public virtual async Task<string> ExecuteAsync(int year, int dayNumber, int part, CancellationToken cancellationToken = default)
         {
+            await CachedContentManager.WriteLastParametersAsync(year, dayNumber, part);
+
             var stopwatch = new Stopwatch();
 
             return await MeasureAndLogAsync(async () =>
@@ -135,6 +186,15 @@ namespace Tidy.AdventOfCode
                 logFunction(result, stopwatch.Elapsed);
                 return result;
             }
+        }
+
+        /// <summary>Convenience method to execute the solution found in <see cref="IDay"/> for the year, day number and part provided by the user via <see cref="Console"/>. Uses <see cref="GetParametersFromConsole"/> and <see cref="ExecuteAsync(int, int, int, CancellationToken)"/>. See those methods for further information.</summary>
+        /// <param name="cancellationToken">The cancellation token to cancel any pending operations in case a cancellation (e.g. application exit) is requested.</param>
+        /// <returns>The result of posting the answer to the server, or the answer if posting is disabled.</returns>
+        public virtual async Task<string> ExecuteAsync(CancellationToken cancellationToken = default)
+        {
+            var (year, dayNumber, part) = GetParametersFromConsole();
+            return await ExecuteAsync(year, dayNumber, part, cancellationToken);
         }
     }
 }

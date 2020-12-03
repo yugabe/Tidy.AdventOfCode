@@ -6,6 +6,14 @@ namespace Tidy.AdventOfCode
     public class ParameterValidator : IParameterValidator
     {
         /// <inheritdoc/>
+        public bool IsValid(int year, int day) => 
+            year >= 2015 && year <= DateTime.Today.Year && day >= 1 && day <= (year == DateTime.Today.Year && DateTime.Today.Month == 12 ? DateTime.Today.Day : 25);
+
+        /// <inheritdoc/>
+        public bool IsValid(int year, int day, int part) =>
+            IsValid(year, day) && part is 1 or 2;
+
+        /// <inheritdoc/>
         public void Validate(int year, int day)
         {
             if (year < 2015 || year > DateTime.Today.Year)
@@ -20,7 +28,7 @@ namespace Tidy.AdventOfCode
         {
             Validate(year, day);
 
-            if (part is < 1 or > 2)
+            if (part is not (1 or 2))
                 throw new ArgumentOutOfRangeException(nameof(part), "The 'part' value has to be either 1 or 2.");
         }
     }

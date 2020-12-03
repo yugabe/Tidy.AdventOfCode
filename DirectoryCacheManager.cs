@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 namespace Tidy.AdventOfCode
 {
     /// <summary>A cache manager object that stores the cookie, the riddle inputs and responses as file entries in the provided directory.</summary>
-    public class DirectoryCacheManager : IApiCacheManager, IApiCookieAccessor
+    public class DirectoryCacheManager : IApiCacheManager, IApiCookieAccessor, ICachedContentManager
     {
         /// <summary>Create a directory-based cache manager.</summary>
         /// <param name="directoryCacheManagerPathProvider">The provider used to acquire the base cache directory path.</param>
         /// <param name="parameterValidator">The validator used to validate year, day and part values.</param>
-        public DirectoryCacheManager(IDirectoryCacheManagerPathProvider directoryCacheManagerPathProvider, IParameterValidator parameterValidator)
+        /// <param name="parameterParser">The parser used to materialize the cached string parameters as int values.</param>
+        public DirectoryCacheManager(IDirectoryCacheManagerPathProvider directoryCacheManagerPathProvider, IParameterValidator parameterValidator, IParameterParser parameterParser)
         {
             Directory = new DirectoryInfo(directoryCacheManagerPathProvider.Path);
             Directory.Create();
@@ -23,6 +24,7 @@ namespace Tidy.AdventOfCode
             OutputsDirectory = Directory.CreateSubdirectory("Outputs");
             DirectoryCacheManagerPathProvider = directoryCacheManagerPathProvider;
             ParameterValidator = parameterValidator;
+            ParameterParser = parameterParser;
         }
 
         private string? _cookieValue;
@@ -43,6 +45,8 @@ namespace Tidy.AdventOfCode
         public IDirectoryCacheManagerPathProvider DirectoryCacheManagerPathProvider { get; }
         /// <summary>The validator used to validate year, day and part values.</summary>
         public IParameterValidator ParameterValidator { get; }
+        /// <summary>The parser used to materialize the cached string parameters as int values.</summary>
+        public IParameterParser ParameterParser { get; }
 
         /// <inheritdoc/>
         private static bool TryReadValue(FileInfo? fileInfo, [NotNullWhen(true)] out string? contents) =>
@@ -90,7 +94,20 @@ namespace Tidy.AdventOfCode
         /// <returns>The repeatable hash for the input <paramref name="text"/>.</returns>
         public static string GetStableHash(string text) =>
             int.TryParse(text, out var result) ? result.ToString() : text.Length <= 10 ? text : Encoding.UTF8.GetString(MD5.ComputeHash(Encoding.UTF8.GetBytes(text)))[..10];
-
         private static MD5 MD5 { get; } = MD5.Create();
+
+        /// <inheritdoc/>
+        public bool TryGetLastParameters([NotNullWhen(true)] out (int year, int dayNumber, int part)? parameters)
+        {
+            parameters = null;
+            return TryReadValue(Directory.GetFiles("last-parameters.txt").SingleOrDefault(), out var contents) && ParameterParser.TryParseFull(contents, out parameters);
+        }
+
+        /// <inheritdoc/>
+        public async Task WriteLastParametersAsync(int year, int dayNumber, int part)
+        {
+            ParameterValidator.Validate(year, dayNumber, part);
+            await File.WriteAllTextAsync(Path.Combine(Directory.FullName, "last-parameters.txt"), ParameterParser.Convert(year, dayNumber, part));
+        }
     }
 }
