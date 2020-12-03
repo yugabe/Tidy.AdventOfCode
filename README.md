@@ -31,16 +31,7 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 3. Create a default runner (replace `Program.cs`):
 
     ``` C#
-    using System;
-    using System.IO;
-    using Tidy.AdventOfCode;
-
-    var dataDirectory = Directory.CreateDirectory(Path.Combine(Environment.GetEnvironmentVariable("APPDATA")!, "YuGabe.AdventOfCode")).FullName; // You can use whichever directory you like, AppData is easy as it's not as protected. Also, obviously, this won't work on *nix.
-    var runner = Runner.CreateDefault(dataDirectory);
-    await runner.ExecuteAsync(
-        year: DateTime.Today.Year, 
-        dayNumber: DateTime.Today.Day, 
-        part: 1);
+    await Tidy.AdventOfCode.Runner.CreateDefault().ExecuteAsync(); // Yes, one line!
     ```
 
 4. Log in to the <a href="https://adventofcode.com/" target="_blank">Advent of Code</a> site and copy the value of the `session` cookie:
