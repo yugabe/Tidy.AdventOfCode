@@ -64,7 +64,7 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 
 ## Things to note
 
-The biggest issue you might run into is when you submit answers less, than a minute apart each other. In this case, for your consequent calls, the warning message will be cached for your answer (whether it was the right or wrong one). In this case you might need to manually delete the corresponding cache entries (or the cache entirely, if you like).
+~~The biggest issue you might run into is when you submit answers less, than a minute apart each other. In this case, for your consequent calls, the warning message will be cached for your answer (whether it was the right or wrong one). In this case you might need to manually delete the corresponding cache entries (or the cache entirely, if you like).~~ [Not an issue since version 1.2.1.](RELEASE_NOTES.md)
 
 The public API is **fully documented** (it is of good quality too, if I may say so myself), so you can start hacking away as much as you like and find new things to do magic with.
 

@@ -2,6 +2,10 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 1.2.1
+
+Now the server responses won't be cached if the response's parsed content contains the text "You gave an answer too recently.".
+
 ## 1.2.0
 
 So much work, so little code! Now you can run the runner with all the default settings by just putting this into your Program.cs file:
