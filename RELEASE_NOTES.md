@@ -2,6 +2,22 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.0.0
+
+The first breaking change! It's nothing major though. Created a simple `Day` class to inherit from when using no parsing of the input value (instead of using `Day<TAnything>.Raw`, which actually was still a `Day<string>` and `TAnything` was discarded). So now you can inherit from these classes you can write your solutions in:
+- `Day`: Inherit from this class when you don't want to parse the input to any other format. This way you have access to the raw input (as a string value accessible via the `Input` property). Technically this is a subclass of `Day<string>`.
+- `Day.NewLineSplitParsed<T>`: Inherit from this class when you don't want to parse the input, but want to convert it to a simple `T` type like `int` or `float` for each line of the input. The conversion is automatic by using the default `TypeConverter` for the given `T` type, but it might fail (in which case you have to choose any of the other ones). Technically this is a subclass of `Day<T[]>`.
+- `Day<T>`: Inherit from this class when you want to work on an input of type `T`. You have to provide the parsing by overriding the `ParseInput` method.
+- `Day<T>.WithParser<TParser>`: Inherit from this class when you want to work on an input of type `T`, and you want to use an `IParser<T>` object that can parse simple text to a `T` instance.
+
+Also, `ISimpleParser` and `IMultipleParser` were consolidated into `IParser`, and you are given the option to... well... simply parse into whatever data structure you like. The corresponding APIs broke as a result, so you'll have to rename your `ForMany` and `ForOne` calls to `WithParser`, and rename the implementor's `ParseOne` and `ParseMany` methods to... yeah, you guessed it: `Parse`.
+
+### Migration from 1._._ to 2.0.0
+
+Your solutions which inherited from `Day<_>.Raw` now should inherit from `Day`. Your solutions which inherited from `Day<_>.NewLineSplitParsed<T>` should now inherit from `Day.NewLineSplitParsed<T>`. 
+
+No other changes are necessary.
+
 ## 1.2.1
 
 Now the server responses won't be cached if the response's parsed content contains the text "You gave an answer too recently.".

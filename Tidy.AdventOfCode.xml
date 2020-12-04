@@ -32,47 +32,39 @@
         <member name="M:Tidy.AdventOfCode.CachingApiHandler.PostAnswerAsync(System.Int32,System.Int32,System.Int32,System.String,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="T:Tidy.AdventOfCode.Day`1">
-            <summary>The base convenience class to inherit from when creating solutions for Advent of Code riddles.<br/>
-            Note that this class contains additional convenience subclasses for easily parsing the input value (e.g. <see cref="T:Tidy.AdventOfCode.Day`1.NewLineSplitParsed"/> to use default <typeparamref name="T"/> type conversion from strings and newline-splitting along the '\n' character).<br/>
-            You can and should create additional abstractions based on your needs from this class.</summary>
-            <typeparam name="T">The type of the data used when processing the input, looking for the correct solution. If using the default <see cref="T:Tidy.AdventOfCode.Runner"/> and service configuration, then the input is provided by the <see cref="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)"/> method to the <see cref="P:Tidy.AdventOfCode.Day`1.Input"/> property to be used in one of the executor methods.</typeparam>
+        <member name="T:Tidy.AdventOfCode.Day">
+            <summary>Uses no parsing of the input value, simply provides the input string unmodified. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>. Can also be used to access the nested class <see cref="T:Tidy.AdventOfCode.Day.NewLineSplitParsed`1"/> to use the default <see cref="M:System.ComponentModel.TypeDescriptor.GetConverter(System.Object)"/> for a given type for automatic conversion from strings. You can and should create additional abstractions based on your needs from this class.</summary>
         </member>
-        <member name="T:Tidy.AdventOfCode.Day`1.Raw">
-            <summary>Uses no parsing of the input value. Simply provides the input string unmodified. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
-        </member>
-        <member name="M:Tidy.AdventOfCode.Day`1.Raw.ParseInput(System.String)">
-            <summary>Returns the input string.</summary>
-            <param name="rawInput">The input to return.</param>
-            <returns>The <paramref name="rawInput"/> unmodified.</returns>
-        </member>
-        <member name="T:Tidy.AdventOfCode.Day`1.NewLineSplitParsed">
+        <member name="T:Tidy.AdventOfCode.Day.NewLineSplitParsed`1">
             <summary>Splits the input string along newlines ('\n') and uses <see cref="M:System.ComponentModel.TypeDescriptor.GetConverter(System.Object)"/> for <typeparamref name="T"/> to convert using the <see cref="M:System.ComponentModel.TypeConverter.ConvertFromString(System.String)"/> method. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+            <typeparam name="T">The type of the data items (as an array) used when processing the input, looking for the correct solution. If using the default <see cref="T:Tidy.AdventOfCode.Runner"/> and service configuration, the input is provided by the <see cref="M:Tidy.AdventOfCode.Day.NewLineSplitParsed`1.ParseInput(System.String)"/> method to the <see cref="P:Tidy.AdventOfCode.Day`1.Input"/> property to be used in one of the executor methods.</typeparam>
         </member>
-        <member name="M:Tidy.AdventOfCode.Day`1.NewLineSplitParsed.ParseInput(System.String)">
+        <member name="M:Tidy.AdventOfCode.Day.NewLineSplitParsed`1.ParseInput(System.String)">
             <summary>
             Parses the provided <paramref name="rawInput"/> by splitting along the newline ('\n') character, and projecting each line to a <typeparamref name="T"/> type by using the default <see cref="T:System.ComponentModel.TypeConverter"/>.
             </summary>
             <param name="rawInput">The raw input value.</param>
             <returns>The parsed <typeparamref name="T"/> values as a generic array.</returns>
         </member>
-        <member name="T:Tidy.AdventOfCode.Day`1.ForOne`1">
-            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
-            <typeparam name="TParser">The <see cref="T:Tidy.AdventOfCode.ISingleParser`1"/> type to be used for constructing the <typeparamref name="T"/> instance.</typeparam>
+        <member name="M:Tidy.AdventOfCode.Day.ParseInput(System.String)">
+            <summary>Returns the input string.</summary>
+            <param name="rawInput">The input to return.</param>
+            <returns>The <paramref name="rawInput"/> unmodified.</returns>
         </member>
-        <member name="M:Tidy.AdventOfCode.Day`1.ForOne`1.ParseInput(System.String)">
-            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance and calling <see cref="M:Tidy.AdventOfCode.ISingleParser`1.ParseOne(System.String)"/>.</summary>
+        <member name="T:Tidy.AdventOfCode.Day`1">
+            <summary>The base convenience class to inherit from when creating solutions for Advent of Code riddles.<br/>
+            Note that this class contains an additional convenience nested class for reusable parsing of the input value: <see cref="T:Tidy.AdventOfCode.Day`1.WithParser`1"/>, with which you can use custom (reusable) <see cref="T:Tidy.AdventOfCode.IParser`1"/> implementations.
+            You can and should create additional abstractions based on your needs from this class.</summary>
+            <typeparam name="T">The type of the data used when processing the input, looking for the correct solution. If using the default <see cref="T:Tidy.AdventOfCode.Runner"/> and service configuration, then the input is provided by the <see cref="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)"/> method to the <see cref="P:Tidy.AdventOfCode.Day`1.Input"/> property to be used in one of the executor methods.</typeparam>
+        </member>
+        <member name="T:Tidy.AdventOfCode.Day`1.WithParser`1">
+            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
+            <typeparam name="TParser">The <see cref="T:Tidy.AdventOfCode.IParser`1"/> type to be used for constructing the <typeparamref name="T"/> instance.</typeparam>
+        </member>
+        <member name="M:Tidy.AdventOfCode.Day`1.WithParser`1.ParseInput(System.String)">
+            <summary>Creates an instance of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance and calling <see cref="M:Tidy.AdventOfCode.IParser`1.Parse(System.String)"/>.</summary>
             <param name="rawInput">The raw input value.</param>
             <returns>The parsed <typeparamref name="T"/> instance.</returns>
-        </member>
-        <member name="T:Tidy.AdventOfCode.Day`1.ForMany`1">
-            <summary>Creates multiple instances of <typeparamref name="T"/> for processing, by constructing an <typeparamref name="TParser"/> instance. See also <seealso cref="T:Tidy.AdventOfCode.Day`1"/>.</summary>
-            <typeparam name="TParser">The <see cref="T:Tidy.AdventOfCode.IMultipleParser`1"/> type to be used for constructing <typeparamref name="T"/> instances.</typeparam>
-        </member>
-        <member name="M:Tidy.AdventOfCode.Day`1.ForMany`1.ParseInput(System.String)">
-            <summary>Creates an array of <typeparamref name="T"/> instances for processing, by constructing an <typeparamref name="TParser"/> instance and calling <see cref="M:Tidy.AdventOfCode.IMultipleParser`1.ParseMany(System.String)"/>.</summary>
-            <param name="rawInput">The raw input value.</param>
-            <returns>The parsed <typeparamref name="T"/> array.</returns>
         </member>
         <member name="P:Tidy.AdventOfCode.Day`1.Input">
             <summary>The input value. Generally provided by a <see cref="T:Tidy.AdventOfCode.Runner"/> by calling this instance's <see cref="M:Tidy.AdventOfCode.Day`1.ParseInput(System.String)"/> method.</summary>
@@ -353,15 +345,6 @@
         <member name="M:Tidy.AdventOfCode.IHtmlContentExtractor.Extract(System.String)">
             <summary>Extracts the &lt;main&gt; tag from the provided HTML content.</summary>
         </member>
-        <member name="T:Tidy.AdventOfCode.IMultipleParser`1">
-            <summary>Represents a parser that can be reused as providing an array of <typeparamref name="T"/> values from the raw input.</summary>
-            <typeparam name="T">The instances that should be constructed from the provided input.</typeparam>
-        </member>
-        <member name="M:Tidy.AdventOfCode.IMultipleParser`1.ParseMany(System.String)">
-            <summary>Parses/transforms the provided <paramref name="rawInput"/> input to <typeparamref name="T"/> instances.</summary>
-            <param name="rawInput">The input to be used for parsing. Generally the input can be obtained from the website after logging in, or the input can be mocked to provide the same input as if the provided examples in the riddle were given to the user as input.</param>
-            <returns>The constructed <typeparamref name="T"/> values.</returns>
-        </member>
         <member name="T:Tidy.AdventOfCode.IParameterParser">
             <summary>A simple string parser, which can parse a string value to a year-dayNumber(-part) tuple.</summary>
         </member>
@@ -429,11 +412,11 @@
             <param name="day">The day value. Should be between 1 and 25, but the <paramref name="year"/>-day pair should point to a day that is not in the future.</param>
             <param name="part">Should be either 1 or 2.</param>
         </member>
-        <member name="T:Tidy.AdventOfCode.ISingleParser`1">
+        <member name="T:Tidy.AdventOfCode.IParser`1">
             <summary>Represents a parser that can be reused as providing an instance of the type <typeparamref name="T"/> from the raw input.</summary>
             <typeparam name="T">The instance that should be constructed from the provided input.</typeparam>
         </member>
-        <member name="M:Tidy.AdventOfCode.ISingleParser`1.ParseOne(System.String)">
+        <member name="M:Tidy.AdventOfCode.IParser`1.Parse(System.String)">
             <summary>Parses/transforms the provided <paramref name="rawInput"/> input to a <typeparamref name="T"/> instance.</summary>
             <param name="rawInput">The input to be used for parsing. Generally the input can be obtained from the website after logging in, or the input can be mocked to provide the same input as if the provided examples in the riddle were given to the user as input.</param>
             <returns>The constructed <typeparamref name="T"/> value.</returns>

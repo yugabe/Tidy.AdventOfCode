@@ -50,7 +50,7 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 
     namespace YourName.AdventOfCode.Year2020
     {
-        class Day1 : Day<string>.Raw
+        class Day1 : Day
         {
             public override object ExecutePart1() => Input.Count(c => c is '(' or ')');
         }
@@ -80,7 +80,7 @@ The cached inputs, answers and responses are all in a human-readable and machine
 
 ## Pro tips
 
-There are some <a href="https://tyrrrz.me/blog/fluent-generics">fluent generics</a> used to construct differently parsed input-handling `Day<T>` objects, such as `Day<T>.ForMany<TParser>`. Yes, that is a **type**! This can reduce boilerplate parsing the input values quite significantly.
+There are some <a href="https://tyrrrz.me/blog/fluent-generics">fluent generics</a> used to construct differently parsed input-handling `Day<T>` objects, such as `Day<T>.WithParser<TParser>`. Yes, that *is* a **type**! This can reduce boilerplate parsing the input values quite significantly. More info can be found [describing version 2.0.0 of the release notes](RELEASE_NOTES.md).
 
 You can create your own Runner, if you would only like a part of the functionality `Tidy.AdventOfCode` provides. There is also a handy extension method for registering with any `IServiceCollection`, like `services.AddTidyAdventOfCode(...)`.
 
