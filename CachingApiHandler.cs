@@ -61,7 +61,7 @@ namespace Tidy.AdventOfCode
                 ["answer"] = answer
             }!), cancellationToken)).EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)));
 
-            if (!response.Contains("You gave an answer too recently."))
+            if (!response.Contains("You gave an answer too recently"))
                 await ApiCacheManager.WriteAnswerAsync(year, day, part, answer, response, cancellationToken);
             return response;
         }

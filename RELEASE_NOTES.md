@@ -2,6 +2,15 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.0.1
+
+Well, the first bug has shown its head. Introduced with the feature in 1.2.1, the correct string to look for in the response didn't have the correct punctuation (there is no pediod character after the text "You gave an answer too recently"). I **always** say: *Don't use magic strings in your code!*... but it seems even I can't follow my own advice. Oh well. 
+
+I have to say, it's a little bit of a Christmas miracle it took this long for a bug to show up at all 🐱‍👤
+
+### Migration from 1.2.1~2.0.0 to 2.0.1 or above
+If you jumped the gun on 1.2.1 or 2.0.0 early, you have to clear the wrong responses from your cache directory manually.
+
 ## 2.0.0
 
 The first breaking change! It's nothing major though. Created a simple `Day` class to inherit from when using no parsing of the input value (instead of using `Day<TAnything>.Raw`, which actually was still a `Day<string>` and `TAnything` was discarded). So now you can inherit from these classes you can write your solutions in:
