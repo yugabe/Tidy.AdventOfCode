@@ -2,6 +2,10 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.0.2
+
+Another minor fix: when returning with a long value from your solution, there was a chance for the `long`-`string`-`int` safe conversion to fail when trying to create the file in the file system. Now the conversion uses `long` values.
+
 ## 2.0.1
 
 Well, the first bug has shown its head. Introduced with the feature in 1.2.1, the correct string to look for in the response didn't have the correct punctuation (there is no pediod character after the text "You gave an answer too recently"). I **always** say: *Don't use magic strings in your code!*... but it seems even I can't follow my own advice. Oh well. 

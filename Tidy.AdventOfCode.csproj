@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <Authors>yugabe</Authors>
     <PackageProjectUrl>https://github.com/yugabe/Tidy.AdventOfCode</PackageProjectUrl>
     <PackageTags>Advent of Code, AoC</PackageTags>

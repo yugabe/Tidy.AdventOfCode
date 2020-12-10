@@ -89,11 +89,11 @@ namespace Tidy.AdventOfCode
             return TryReadValue(OutputsDirectory.GetDirectories($"Year {year}").SingleOrDefault()?.GetDirectories($"Day {day}").SingleOrDefault()?.GetFiles($"{year}-{day}-{part}-{GetStableHash(answer)}.response.html").SingleOrDefault(), out htmlResponse);
         }
 
-        /// <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as an <see cref="int"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="MD5"/> hash is calculated using <see cref="Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
+        /// <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as a <see cref="long"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="MD5"/> hash is calculated using <see cref="Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
         /// <param name="text">The text to calculate the simple hash for.</param>
         /// <returns>The repeatable hash for the input <paramref name="text"/>.</returns>
         public static string GetStableHash(string text) =>
-            int.TryParse(text, out var result) ? result.ToString() : text.Length <= 10 ? text : Encoding.UTF8.GetString(MD5.ComputeHash(Encoding.UTF8.GetBytes(text)))[..10];
+            long.TryParse(text, out var result) ? result.ToString() : text.Length <= 10 ? text : Encoding.UTF8.GetString(MD5.ComputeHash(Encoding.UTF8.GetBytes(text)))[..10];
         private static MD5 MD5 { get; } = MD5.Create();
 
         /// <inheritdoc/>
