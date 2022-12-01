@@ -14,11 +14,11 @@
         /// <inheritdoc/>
         public void Validate(int year, int day)
         {
-            if (year < 2015 || year > DateTime.Today.Year)
+            if (year < 2015)
                 throw new ArgumentOutOfRangeException(nameof(year), "The 'year' value has to be between 2015 and the current year.");
 
-            if (day < 1 || day > (year == DateTime.Today.Year ? DateTime.Today.Day : 25))
-                throw new ArgumentOutOfRangeException(nameof(day), "The 'day' value has to be between 1 and the current day of the month, or 25 in previous years.");
+            if (day < 1 || day > 25)
+                throw new ArgumentOutOfRangeException(nameof(day), "The 'day' value has to be between 1 and 25.");
         }
 
         /// <inheritdoc/>
