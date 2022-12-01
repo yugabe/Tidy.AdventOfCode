@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Tidy.AdventOfCode
+﻿namespace Tidy.AdventOfCode
 {
     /// <summary>Represents a riddle solution in the Advent of Code calendar.</summary>
     public interface IDay : IDisposable

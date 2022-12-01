@@ -2,6 +2,10 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.0.3
+
+Added a user-agent string to outgoing HTTP requests in the format: `.NET/7.0.0 Tidy.AdventOfCode/2.0.3 (+https://github.com/yugabe/Tidy.AdventOfCode)`, as it was [requested by Eric on Reddit](https://www.reddit.com/r/adventofcode/comments/z9dhtd/).
+
 ## 2.0.2
 
 Another minor fix: when returning with a long value from your solution, there was a chance for the `long`-`string`-`int` safe conversion to fail when trying to create the file in the file system. Now the conversion uses `long` values.

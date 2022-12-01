@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Tidy.AdventOfCode
 {
@@ -25,11 +22,24 @@ namespace Tidy.AdventOfCode
         /// <param name="htmlContentExtractor">The HTML content extractor. Used to extract the &lt;main&gt; tag's content from the full HTML from HTTP body.</param>
         public CachingApiHandler(IApiCookieAccessor apiCookieAccessor, IApiCacheManager apiCacheManager, IParameterValidator parameterValidator, IHtmlContentExtractor htmlContentExtractor)
         {
-            Client = new HttpClient() { BaseAddress = new Uri("https://adventofcode.com/") };
-            Client.DefaultRequestHeaders.Add("Cookie", $"session={apiCookieAccessor.CookieValue}");
+            Client = CreateHttpClient(apiCookieAccessor.CookieValue);
             ApiCacheManager = apiCacheManager;
             ParameterValidator = parameterValidator;
             HtmlContentExtractor = htmlContentExtractor;
+
+            static HttpClient CreateHttpClient(string cookieValue)
+            {
+                var client = new HttpClient() { BaseAddress = new Uri("https://adventofcode.com/") };
+                client.DefaultRequestHeaders.Add("Cookie", $"session={cookieValue}");
+                if (RuntimeInformation.FrameworkDescription.Split() is [.. var nameTokens, var version])
+                    client.DefaultRequestHeaders.UserAgent.Add(new(string.Join('-', nameTokens), version));
+                client.DefaultRequestHeaders.UserAgent.Add(new(
+                    Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyProductAttribute>()!.Product,
+                    Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion)
+                );
+                client.DefaultRequestHeaders.UserAgent.Add(new("(+https://github.com/yugabe/Tidy.AdventOfCode)"));
+                return client;
+            }
         }
 
         /// <inheritdoc/>

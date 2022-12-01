@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Tidy.AdventOfCode
+﻿namespace Tidy.AdventOfCode
 {
     /// <summary>
     /// A handler responsible for getting the inputs from and posting the answers to https://adventofcode.com/ using the user's session cookie.

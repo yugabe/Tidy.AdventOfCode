@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Tidy.AdventOfCode
 {
@@ -20,7 +16,7 @@ namespace Tidy.AdventOfCode
             /// </summary>
             /// <param name="rawInput">The raw input value.</param>
             /// <returns>The parsed <typeparamref name="T"/> values as a generic array.</returns>
-            public override T[] ParseInput(string rawInput) => rawInput.Split('\n').Select(i => (T)Converter.ConvertFromString(i)).ToArray();
+            public override T[] ParseInput(string rawInput) => rawInput.Split('\n').Select(i => (T)Converter.ConvertFromString(i)!).ToArray();
         }
 
         /// <summary>Returns the input string.</summary>

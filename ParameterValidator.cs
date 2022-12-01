@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tidy.AdventOfCode
+﻿namespace Tidy.AdventOfCode
 {
     /// <inheritdoc/>
     public class ParameterValidator : IParameterValidator

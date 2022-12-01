@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tidy.AdventOfCode
+﻿namespace Tidy.AdventOfCode
 {
     /// <summary>Used to annotate a non-conventionally named <see cref="Day{T}"/> object with the corresponding year and day values, or ignore a <see cref="Day{T}"/> subclass from being resolved by an <see cref="IDayResolver"/>. By convention, <see cref="Day{T}"/> objects should be named Day# or Day##, where # and ## represents the day number, and be placed in a namespace which has a last segment of Year####, where #### corresponds to the relevant year.</summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]

@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <OutputType>Library</OutputType>
+	<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <Authors>yugabe</Authors>
     <PackageProjectUrl>https://github.com/yugabe/Tidy.AdventOfCode</PackageProjectUrl>
     <PackageTags>Advent of Code, AoC</PackageTags>
@@ -20,9 +21,9 @@
 
   <ItemGroup>
     <None Include="icon.png" Pack="true" PackagePath="\" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.28" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

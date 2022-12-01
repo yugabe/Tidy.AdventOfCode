@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Tidy.AdventOfCode
+﻿namespace Tidy.AdventOfCode
 {
     /// <summary>Validates year, day and part values.</summary>
     public interface IParameterValidator
