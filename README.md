@@ -35,7 +35,8 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 3. Create a default runner (replace `Program.cs`):
 
     ``` C#
-    await Tidy.AdventOfCode.Runner.CreateDefault().ExecuteAsync(); // Yes, one line!
+    global using Tidy.AdventOfCode; // So that you don't have to import the namespace in all Day files.
+    await Runner.CreateDefault().ExecuteAsync(); // Yes, just the one line!
     ```
 
 4. Log in to the <a href="https://adventofcode.com/" target="_blank">Advent of Code</a> site and copy the value of the `session` cookie:
@@ -49,8 +50,6 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 6. Create your solution for the day:
 
     ``` C#
-    using Tidy.AdventOfCode;
-
     namespace YourName.AdventOfCode.Year2020;
     class Day1 : Day
     {
@@ -81,6 +80,20 @@ The cached inputs, answers and responses are all in a human-readable and machine
 ## Pro tips
 
 There are some <a href="https://tyrrrz.me/blog/fluent-generics">fluent generics</a> used to construct differently parsed input-handling `Day<T>` objects, such as `Day<T>.WithParser<TParser>`. Yes, that *is* a **type**! This can reduce boilerplate parsing the input values quite significantly. More info can be found [describing version 2.0.0 of the release notes](RELEASE_NOTES.md).
+
+Maybe things don't need a `Parser` type and you'll be all right to just do a one-time parsing method inside the day:
+
+    ```C#
+    namespace YourName.AdventOfCode.Year2026;
+    public class Day19 : Day<Day19.Box>
+    {
+        public record Box(int Width, int Height); // I usually put the types related to the puzzle inside the Day subclasses
+
+        public override Box Parse(string rawInput) => new(int.Parse(rawInput[..5]), int.Parse(rawInput[7..]));
+
+        public override object ExecutePart1() => throw null!;
+    }
+    ```
 
 You can create your own Runner, if you would only like a part of the functionality `Tidy.AdventOfCode` provides. There is also a handy extension method for registering with any `IServiceCollection`, like `services.AddTidyAdventOfCode(...)`.
 
