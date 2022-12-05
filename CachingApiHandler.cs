@@ -54,7 +54,7 @@ namespace Tidy.AdventOfCode
                 return input;
 
             input = (await (await Client.GetAsync($"/{year}/day/{day}/input", cancellationToken))
-                .EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)).Trim();
+                .EnsureSuccessStatusCode().Content.ReadAsStringAsync(cancellationToken)).TrimEnd();
             await ApiCacheManager.WriteInputAsync(year, day, input, cancellationToken);
             return input;
         }

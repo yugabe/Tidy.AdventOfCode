@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
 	<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <Authors>yugabe</Authors>
     <PackageProjectUrl>https://github.com/yugabe/Tidy.AdventOfCode</PackageProjectUrl>
     <PackageTags>Advent of Code, AoC</PackageTags>

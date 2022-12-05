@@ -2,6 +2,12 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.0.4
+
+The API handler was trimming the input HTTP response string from whitespace on both ends. Now, as it was a problem on Day 5 of 2022, which could have relevant withspace in the beginning, it will only be trimming the end by default.
+
+*NOTE* If you encountered this issue, please upgrade to version 2.0.4 and remove the relevant entry from the cache (which is, by default, at `%APPDATA%\Tidy.AdventOfCode\Inputs`).
+
 ## 2.0.3
 
 Added a user-agent string to outgoing HTTP requests in the format: `.NET/7.0.0 Tidy.AdventOfCode/2.0.3 (+https://github.com/yugabe/Tidy.AdventOfCode)`, as it was [requested by Eric on Reddit](https://www.reddit.com/r/adventofcode/comments/z9dhtd/).
