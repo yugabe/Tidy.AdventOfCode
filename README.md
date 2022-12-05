@@ -16,13 +16,13 @@ The list of changes can be found at the [release notes](RELEASE_NOTES.md).
 
 ## Prerequisites
 
-You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target="_blank">version 5.0 of the .NET SDK</a> installed. Nothing else. Although a <a href="https://code.visualstudio.com/" target="_blank">code editor</a> or an <a href="https://visualstudio.microsoft.com/" target="_blank">IDE</a> might be a good idea.
+You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target="_blank">version 5.0 of the .NET SDK</a> installed; but for the latest release, the .NET 7.0 SDK is required. Nothing else. Although a <a href="https://code.visualstudio.com/" target="_blank">code editor</a> or an <a href="https://visualstudio.microsoft.com/" target="_blank">IDE</a> might be a good idea. If you need me to backport to a specific .NET SDK, please, say the word.
 
 ## Low maintenance
 
 1. Create a new Console app:
 
-    `> dotnet new console -f net5.0`
+    `> dotnet new console -f net7.0`
 
 2. Add a little Tidy.AdventOfCode NuGet sprinkle:
 
@@ -45,17 +45,13 @@ You need at least <a href="https://dotnet.microsoft.com/download/dotnet/" target
 6. Create your solution for the day:
 
     ``` C#
-    using System.Linq;
     using Tidy.AdventOfCode;
 
-    namespace YourName.AdventOfCode.Year2020
+    namespace YourName.AdventOfCode.Year2020;
+    class Day1 : Day
     {
-        class Day1 : Day
-        {
-            public override object ExecutePart1() => Input.Count(c => c is '(' or ')');
-        }
+        public override object ExecutePart1() => Input.Count(c => c is '(' or ')');
     }
-
     ```
 
 7. Watch, as *magic* happens!
@@ -72,7 +68,7 @@ The API is designed in a way to be fully expandable (by inheriting) or to be as 
 
 For pros, you can switch out any of the underlying services that are registered in the service provider. `IDay` instances are instantiated using DI.
 
-The Advent of Code server isn't designed to be used this way. Please, be mindful and don't use any of your code for malicious purposes, such as DDOSing the server. You are identified by your IP address (and specifically, by the session cookie), so consider yourself informed.
+The Advent of Code server isn't designed to be used this way. Please, be mindful and don't use any of your code for malicious purposes, such as DDOSing the server. You are identified by your IP address (and specifically, by the session cookie), so consider yourself informed. The framework also puts a user-agent header into the requests by default; which is, at the moment, not configurable -- by design. If you manage to misuse it, the default client might get banned. Please, be considerate of this.
 
 If you have some questions, feel free to browse the source or open an issue. I don't plan to extend the current solution very much (unless public demand shows to or I happen to get another), so if you wish to modify anything in the framework, feel free to open a pull request or fork the repo.
 

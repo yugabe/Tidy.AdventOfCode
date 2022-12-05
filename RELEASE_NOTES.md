@@ -6,6 +6,10 @@
 
 The API handler was trimming the input HTTP response string from whitespace on both ends. Now, as it was a problem on Day 5 of 2022, which could have relevant withspace in the beginning, it will only be trimming the end by default.
 
+Disabled strict parameter validation, so you can go ahead and create the future `Day` objects without the `Runner` throwing a fit (/Exception).
+
+The default `Runner` wasn't logging which part of the puzzle a solution was for. This has been fixed.
+
 *NOTE* If you encountered this issue, please upgrade to version 2.0.4 and remove the relevant entry from the cache (which is, by default, at `%APPDATA%\Tidy.AdventOfCode\Inputs`).
 
 ## 2.0.3
