@@ -6,6 +6,10 @@
 
 `Tidy.AdventOfCode` is a free, simple runner and framework for creating and posting your solutions for the awesome <a href="https://adventofcode.com/" target="_blank">Advent of Code</a> yearly riddle-fest in (the also awesome) .NET!
 
+## Private leaderboard
+
+You can join my private (ha!) [leaderboard](https://adventofcode.com/leaderboard/private) with the code `262120-78a0e92f` if you like. I'm not overly competitive with regards to timing, as I'm unable to start the puzzles when they go live, but we can check each others' progress.
+
 ## What it does
 
 `Tidy.AdventOfCode` provides a framework for running your solutions for Advent of Code riddles, and that means there are predefined types (like `Day<T>`) that help you organize your code or reduce boilerplate. If you follow the example below, you'll see everything will *"just work"*. You add your solution for the day, start the runner (providing the proper `year`, `dayNumber` and `part` values are still your responsibility, maybe use a `Console.ReadLine()` for getting them from the console), and your solution gets automagically calculated for the input that gets pulled (and cached ) from the server. Then, your answer in hand, your solution gets **posted** to the server, and the result from the server gets rendered on your console!
