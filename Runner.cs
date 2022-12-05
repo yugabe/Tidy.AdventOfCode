@@ -160,7 +160,7 @@ namespace Tidy.AdventOfCode
                         Logger.LogDebug("{Year}-{Day}: Path {Part} response recieved in {Elapsed}.", year, dayNumber, part, t);
                         var doc = new HtmlAgilityPack.HtmlDocument();
                         doc.LoadHtml(r);
-                        Logger.LogInformation("{Year}-{Day}: Result:\n{Result}", year, dayNumber, doc.DocumentNode.InnerText);
+                        Logger.LogInformation("{Year}-{Day}-{Part}: Result:\n{Result}", year, dayNumber, part, doc.DocumentNode.InnerText);
                     });
 
                 return $"{answer}\n\n{result}";
