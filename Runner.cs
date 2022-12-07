@@ -118,19 +118,19 @@ namespace Tidy.AdventOfCode
             return await MeasureAndLogAsync(async () =>
             {
                 using var day = MeasureAndLog(() => DayResolver.CreateDay(year, dayNumber),
-                    (r, t) => Logger.LogDebug("{Year}-{Day}: Day of type {DayType} was created in {Elapsed}.", year, dayNumber, r.GetType().FullName, t));
+                    (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Day of type {DayType} was created in {Elapsed}.", year, dayNumber, part, r.GetType().FullName, t));
 
                 var input = await MeasureAndLogAsync(async () => await CachingApiHandler.GetInputAsync(year, dayNumber, Options.Value.DisableAutomaticInputDownload, cancellationToken),
-                    (r, t) => Logger.LogDebug("{Year}-{Day}: Input of length {InputLength} was acquired in {Elapsed}.", year, dayNumber, r.Length, t));
+                    (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Input of length {InputLength} was acquired in {Elapsed}.", year, dayNumber, part, r.Length, t));
 
                 day.Input = MeasureAndLog(() => day.ParseInput(input),
-                    (r, t) => Logger.LogDebug("{Year}-{Day}: Input {ParsedType} was parsed in {Elapsed}.", year, dayNumber, r?.GetType().Name ?? "(unknown)", stopwatch.Elapsed));
+                    (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Input {ParsedType} was parsed in {Elapsed}.", year, dayNumber, part, r?.GetType().Name ?? "(unknown)", stopwatch.Elapsed));
 
                 var answer = await MeasureAndLogAsync(async () => (await day.ExecuteAsync(part, cancellationToken)).ToString(),
                     (r, t) =>
                     {
-                        Logger.LogDebug("{Year}-{Day}: Part {Part} completed in {Elapsed}.", year, dayNumber, r?.GetType().Name ?? "(unknown)", t);
-                        Logger.LogInformation("{Year}-{Day}: Answer:\n{Answer}", year, dayNumber, r);
+                        Logger.LogDebug("{Year}-{Day}-{Part}: Completed in {Elapsed}.", year, dayNumber, part, t);
+                        Logger.LogInformation("{Year}-{Day}-{Part}: Answer:\n{Answer}", year, dayNumber, part, r);
                     });
 
                 if (string.IsNullOrWhiteSpace(answer))
@@ -157,15 +157,15 @@ namespace Tidy.AdventOfCode
                 var result = await MeasureAndLogAsync(async () => await CachingApiHandler.PostAnswerAsync(year, dayNumber, part, answer, cancellationToken),
                     (r, t) =>
                     {
-                        Logger.LogDebug("{Year}-{Day}: Path {Part} response recieved in {Elapsed}.", year, dayNumber, part, t);
+                        Logger.LogDebug("{Year}-{Day}-{Part}: Response recieved in {Elapsed}.", year, dayNumber, part, t);
                         var doc = new HtmlAgilityPack.HtmlDocument();
                         doc.LoadHtml(r);
-                        Logger.LogInformation("{Year}-{Day}-{Part}: Result:\n{Result}", year, dayNumber, part, doc.DocumentNode.InnerText);
+                        Logger.LogInformation("{Year}-{Day}-{Part}: Result:\n{Result}", year, dayNumber, part, doc.DocumentNode.InnerText.Trim());
                     });
 
                 return $"{answer}\n\n{result}";
             },
-            (r, t) => Logger.LogInformation("{Year}-{Day}: Part {Part} run completed in {Elapsed}.", year, dayNumber, part, t), new Stopwatch());
+            (r, t) => Logger.LogInformation("{Year}-{Day}-{Part}: Run completed in {Elapsed}.", year, dayNumber, part, t), new Stopwatch());
 
             T MeasureAndLog<T>(Func<T> func, Action<T, TimeSpan> logFunction, Stopwatch? innerStopwatch = null)
             {
