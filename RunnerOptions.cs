@@ -11,5 +11,8 @@
 
         /// <summary>If set to true, the answer value will be copied to the clipboard after a successful run (only on Windows). Default is false.</summary>
         public bool CopyAnswerToClipboard { get; set; } = false;
+
+        /// <summary>If set to true or unset, the answer will be colorized with console virtual terminal sequences. Some terminals might not support outputting the sequences and the commands might be visible instead of the colorization.</summary>
+        public bool ColorizeResponses { get; set; } = true;
     }
 }

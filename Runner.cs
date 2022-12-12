@@ -4,12 +4,15 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Tidy.AdventOfCode
 {
     /// <summary>The default runner for executing potential solutions for Advent of Code riddles. By default, uses caching of input, answer and response values and directly calls the server at the https://adventofcode.com/ website to get the inputs and post the answers to the riddles.</summary>
-    public class Runner
+    public partial class Runner
     {
+        private static IReadOnlyDictionary<Regex, int> RegexMatchColorCodes { get; } = new Dictionary<Regex, int>() { [CorrectAnswer()] = 92, [IncorrectAnswer()] = 31, [GoldStar()] = 93 };
+
         /// <summary>Creates a runner to execute <see cref="IDay"/> instances' <see cref="IDay.ExecuteAsync(int, CancellationToken)"/> methods, provide and parse the inputs, post the answers and log and store the result.</summary>
         /// <param name="dayResolver">The resolver used to create <see cref="IDay"/> instances.</param>
         /// <param name="cachingApiHandler">The handler used to communicate with the server.</param>
@@ -113,8 +116,6 @@ namespace Tidy.AdventOfCode
         {
             await CachedContentManager.WriteLastParametersAsync(year, dayNumber, part);
 
-            var stopwatch = new Stopwatch();
-
             return await MeasureAndLogAsync(async () =>
             {
                 using var day = MeasureAndLog(() => DayResolver.CreateDay(year, dayNumber),
@@ -124,14 +125,10 @@ namespace Tidy.AdventOfCode
                     (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Input of length {InputLength} was acquired in {Elapsed}.", year, dayNumber, part, r.Length, t));
 
                 day.Input = MeasureAndLog(() => day.ParseInput(input),
-                    (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Input {ParsedType} was parsed in {Elapsed}.", year, dayNumber, part, r?.GetType().Name ?? "(unknown)", stopwatch.Elapsed));
+                    (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Input {ParsedType} was parsed in {Elapsed}.", year, dayNumber, part, r?.GetType().Name ?? "(unknown)", t));
 
                 var answer = await MeasureAndLogAsync(async () => (await day.ExecuteAsync(part, cancellationToken)).ToString(),
-                    (r, t) =>
-                    {
-                        Logger.LogDebug("{Year}-{Day}-{Part}: Completed in {Elapsed}.", year, dayNumber, part, t);
-                        Logger.LogInformation("{Year}-{Day}-{Part}: Answer:\n{Answer}", year, dayNumber, part, r);
-                    });
+                    (r, t) => Logger.LogInformation("{Year}-{Day}-{Part}: Completed in {Elapsed}. Answer:\n{Answer}", year, dayNumber, part, t, r));
 
                 if (string.IsNullOrWhiteSpace(answer))
                     throw new InvalidOperationException($"The answer for year {year}, day {dayNumber} part {part} was null or white space.");
@@ -160,24 +157,27 @@ namespace Tidy.AdventOfCode
                         Logger.LogDebug("{Year}-{Day}-{Part}: Response recieved in {Elapsed}.", year, dayNumber, part, t);
                         var doc = new HtmlAgilityPack.HtmlDocument();
                         doc.LoadHtml(r);
-                        Logger.LogInformation("{Year}-{Day}-{Part}: Result:\n{Result}", year, dayNumber, part, doc.DocumentNode.InnerText.Trim());
+                        var responseText = MultipleWhitespace().Replace(doc.DocumentNode.InnerText, " ").Trim();
+                        if (Options.Value.ColorizeResponses)
+                            responseText = RegexMatchColorCodes.Aggregate(responseText, (acc, token) => token.Key.Replace(acc, $"\x1B[{token.Value}m$1\x1B[0m"));
+                        Logger.LogInformation("{Year}-{Day}-{Part}: Result:\n{Result}", year, dayNumber, part, responseText);
                     });
 
                 return $"{answer}\n\n{result}";
             },
-            (r, t) => Logger.LogInformation("{Year}-{Day}-{Part}: Run completed in {Elapsed}.", year, dayNumber, part, t), new Stopwatch());
+            (r, t) => Logger.LogDebug("{Year}-{Day}-{Part}: Run completed in {Elapsed}.", year, dayNumber, part, t));
 
-            T MeasureAndLog<T>(Func<T> func, Action<T, TimeSpan> logFunction, Stopwatch? innerStopwatch = null)
+            T MeasureAndLog<T>(Func<T> func, Action<T, TimeSpan> logFunction)
             {
-                (innerStopwatch ?? stopwatch).Restart();
+                var stopwatch = Stopwatch.StartNew();
                 var result = func();
                 logFunction(result, stopwatch.Elapsed);
                 return result;
             }
 
-            async Task<T> MeasureAndLogAsync<T>(Func<Task<T>> func, Action<T, TimeSpan> logFunction, Stopwatch? innerStopwatch = null)
+            async Task<T> MeasureAndLogAsync<T>(Func<Task<T>> func, Action<T, TimeSpan> logFunction)
             {
-                (innerStopwatch ?? stopwatch).Restart();
+                var stopwatch = Stopwatch.StartNew();
                 var result = await func();
                 logFunction(result, stopwatch.Elapsed);
                 return result;
@@ -192,5 +192,18 @@ namespace Tidy.AdventOfCode
             var (year, dayNumber, part) = GetParametersFromConsole();
             return await ExecuteAsync(year, dayNumber, part, cancellationToken);
         }
+
+        [GeneratedRegex("\\s{2,}")]
+        private static partial Regex MultipleWhitespace();
+
+        [GeneratedRegex("(That's the right answer!)")]
+        private static partial Regex CorrectAnswer();
+
+        [GeneratedRegex("(That's not the right answer(.*)\\.)")]
+        private static partial Regex IncorrectAnswer();
+
+        [GeneratedRegex("(gold star)")]
+        private static partial Regex GoldStar();
+
     }
 }
