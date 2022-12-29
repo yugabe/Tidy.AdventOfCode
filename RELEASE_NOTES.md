@@ -2,6 +2,16 @@
 
 # Tidy.AdventOfCode - Release Notes
 
+## 2.1.0
+
+Colorized the output based on the response to the submitted answer in the console.
+
+Consolidated formatting of log entries in the console, including the naming of the puzzles and parts (it should always read as YYYY-DD-PP). Changed the log levels of some entries to decrease clutter.
+
+Fixed some incorrect time calculations when using the stopwatch asynchronously.
+
+Fixed invalid filenames being generated for caching the answers and server responses. This could happen when the answer was longer than 10 characters, namely in puzzle Day 25 of 2022.
+
 ## 2.0.4
 
 The API handler was trimming the input HTTP response string from whitespace on both ends. Now, as it was a problem on Day 5 of 2022, which could have relevant withspace in the beginning, it will only be trimming the end by default.

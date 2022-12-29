@@ -5,11 +5,14 @@
     <OutputType>Library</OutputType>
 	<ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.0.4</Version>
+    <Version>2.1.0</Version>
     <Authors>yugabe</Authors>
     <PackageProjectUrl>https://github.com/yugabe/Tidy.AdventOfCode</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yugabe/Tidy.AdventOfCode.git</RepositoryUrl>
+	<ReleaseNotes>https://github.com/yugabe/Tidy.AdventOfCode/blob/main/RELEASE_NOTES.md</ReleaseNotes>
     <PackageTags>Advent of Code, AoC</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,7 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="icon.png" Pack="true" PackagePath="\" />
+	<None Include="icon.png" Pack="true" PackagePath="\" />
+	<None Include="README.md" Pack="true" PackagePath="\" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
