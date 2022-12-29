@@ -186,7 +186,7 @@
             <inheritdoc/>
         </member>
         <member name="M:Tidy.AdventOfCode.DirectoryCacheManager.GetStableHash(System.String)">
-            <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as a <see cref="T:System.Int64"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="P:Tidy.AdventOfCode.DirectoryCacheManager.MD5"/> hash is calculated using <see cref="P:System.Text.Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
+            <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as a <see cref="T:System.Int64"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="T:System.Security.Cryptography.MD5"/> hash is calculated using <see cref="P:System.Text.Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
             <param name="text">The text to calculate the simple hash for.</param>
             <returns>The repeatable hash for the input <paramref name="text"/>.</returns>
         </member>

@@ -84,12 +84,13 @@ namespace Tidy.AdventOfCode
             return TryReadValue(OutputsDirectory.GetDirectories($"Year {year}").SingleOrDefault()?.GetDirectories($"Day {day}").SingleOrDefault()?.GetFiles($"{year}-{day}-{part}-{GetStableHash(answer)}.response.html").SingleOrDefault(), out htmlResponse);
         }
 
-        /// <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as a <see cref="long"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long, the string value itself is used. Otherwise, a default <see cref="MD5"/> hash is calculated using <see cref="Encoding.UTF8"/>, of which the first 10 characters are used.</summary>
+        private static HashSet<char> InvalidPathChars { get; } = Path.GetInvalidPathChars().ToHashSet();
+
+        /// <summary>Calculates a simple, repeatable hash for the given <paramref name="text"/> (an answer) that is used as part of naming the cached file entries. If the <paramref name="text"/> can be parsed as a <see cref="long"/>, the number value is used. If the <paramref name="text"/> is not longer than 10 characters long and doesn't contain invalid path characters, the string value itself is used. Otherwise, a default <see cref="MD5"/> hash is calculated using the string encoded as <see cref="Encoding.UTF8"/> bytes, represented in a base64 string, of which the first 10 characters are used.</summary>
         /// <param name="text">The text to calculate the simple hash for.</param>
         /// <returns>The repeatable hash for the input <paramref name="text"/>.</returns>
         public static string GetStableHash(string text) =>
-            long.TryParse(text, out var result) ? result.ToString() : text.Length <= 10 ? text : Encoding.UTF8.GetString(MD5.ComputeHash(Encoding.UTF8.GetBytes(text)))[..10];
-        private static MD5 MD5 { get; } = MD5.Create();
+            long.TryParse(text, out var result) ? result.ToString() : text.All(c => !InvalidPathChars.Contains(c)) && text.Length <= 10 ? text : Convert.ToBase64String(MD5.HashData(Encoding.UTF8.GetBytes(text)))[..10];
 
         /// <inheritdoc/>
         public bool TryGetLastParameters([NotNullWhen(true)] out (int year, int dayNumber, int part)? parameters)
